@@ -1,0 +1,27 @@
+# Configuración para Render (Blueprint). Render la lee al conectar el repositorio.
+# Servidor Node con disco persistente en /data para las compras y los ingresos.
+services:
+  - type: web
+    name: sistema-entradas # cámbialo por el nombre del evento
+    runtime: node
+    plan: starter # el plan gratis se duerme y no admite disco persistente
+    region: virginia # la región más cercana a Venezuela
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/seats/blocked
+    disk:
+      name: datos
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATA_DIR
+        value: /data
+      - key: ADMIN_SESSION_SECRET
+        generateValue: true
+      # Las claves se escriben a mano en el panel de Render (nunca en el código)
+      - key: ADMIN_PIN
+        sync: false
+      - key: PUERTA_PIN
+        sync: false

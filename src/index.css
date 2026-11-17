@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/* Colores de la marca: los valores reales se toman de src/config.ts al cargar la página (ver main.tsx) */
+:root {
+  --marca: #6d28d9;
+  --marca-oscuro: #4c1d95;
+  --fondo-oscuro: #1e1b4b;
+  --suave: #f5f3ff;
+  --vip: #c5a059;
+}
+
+@theme inline {
+  --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --color-marca: var(--marca);
+  --color-marca-oscuro: var(--marca-oscuro);
+  --color-oscuro: var(--fondo-oscuro);
+  --color-suave: var(--suave);
+  --color-vip: var(--vip);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #111827;
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-slideLeft {
+  animation: slideLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* Fondo de la portada: degradado de la marca con brillo suave */
+.hero-bg {
+  background:
+    radial-gradient(60% 50% at 80% 10%, color-mix(in oklab, var(--marca) 55%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 10% 90%, color-mix(in oklab, var(--marca) 35%, transparent), transparent 70%),
+    var(--fondo-oscuro);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
