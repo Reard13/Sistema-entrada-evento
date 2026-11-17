@@ -51,6 +51,17 @@ body {
     var(--fondo-oscuro);
 }
 
+/* Portada con foto: capa oscura del color de la marca para que el texto se lea */
+.hero-foto {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--fondo-oscuro) 70%, transparent) 0%,
+      color-mix(in oklab, var(--fondo-oscuro) 80%, transparent) 55%,
+      var(--fondo-oscuro) 100%),
+    var(--hero-foto) center 35% / cover no-repeat,
+    var(--fondo-oscuro);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

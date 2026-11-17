@@ -33,7 +33,10 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage }) =
   return (
     <>
       {/* ---------- Portada ---------- */}
-      <section className="hero-bg text-white">
+      <section
+        className={`${EVENTO.fotoPortada ? 'hero-foto' : 'hero-bg'} text-white`}
+        style={EVENTO.fotoPortada ? ({ '--hero-foto': `url(${EVENTO.fotoPortada})` } as React.CSSProperties) : undefined}
+      >
         <div className="max-w-6xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
           <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/70">{EVENTO.organizador} presenta</p>
           <h1 className="mt-4 text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-balance">{EVENTO.nombre}</h1>

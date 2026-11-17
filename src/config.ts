@@ -24,6 +24,9 @@ export const EVENTO = {
   // Enlace de Google Maps (opcional)
   mapaUrl: 'https://maps.app.goo.gl/eKA95Eiten6ZQraE6',
 
+  // Foto de fondo de la portada (archivo en public/). Vacío = fondo de color.
+  fotoPortada: '/portada.webp',
+
   // Dirección pública de la web (para la vista previa al compartir el enlace)
   urlPublica: 'https://mi-evento.onrender.com',
 };
