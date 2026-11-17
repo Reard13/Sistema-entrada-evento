@@ -93,19 +93,18 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage }) =
       {/* ---------- Entradas y precios ---------- */}
       <section id="entradas" className="scroll-mt-20 max-w-5xl mx-auto px-4 py-16">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-oscuro text-center">Entradas</h2>
-        <p className="mt-2 text-center text-gray-600">Elige el tipo de entrada y después tus asientos en el mapa.</p>
+        <p className="mt-2 text-center text-gray-600">Elige tus asientos en el mapa.</p>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <div className="mt-10 grid gap-5 max-w-md mx-auto">
           {(Object.keys(ENTRADAS) as PackageType[]).map((pkg) => {
             const e = ENTRADAS[pkg];
-            const vip = pkg === 'VIP';
             return (
               <article
                 key={pkg}
-                className={`relative flex flex-col rounded-3xl border p-6 sm:p-8 ${vip ? 'border-vip bg-[color-mix(in_oklab,var(--vip)_8%,white)]' : 'border-gray-200 bg-white'}`}
+                className={`relative flex flex-col rounded-3xl border p-6 sm:p-8 border-gray-200 bg-white`}
               >
-                <span className={`self-start rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${vip ? 'bg-vip text-[#2B1D05]' : 'bg-suave text-marca-oscuro'}`}>
-                  {pkg}
+                <span className={`self-start rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-suave text-marca-oscuro`}>
+                  Entrada {pkg}
                 </span>
                 <p className="mt-5 flex items-baseline gap-2">
                   <span className="text-5xl font-extrabold text-oscuro tabular-nums">${e.precio}</span>
@@ -125,7 +124,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage }) =
                   onClick={() => onSelectPackage(pkg)}
                   className="mt-7 w-full min-h-[52px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-bold inline-flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  Elegir asientos {pkg}
+                  Elegir asientos
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </article>

@@ -128,8 +128,6 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return {
       pending: reservations.filter((r) => r.approvalStatus === 'pending_approval').length,
       sold: seats.length,
-      general: seats.filter((s) => s.pkg === 'General').length,
-      vip: seats.filter((s) => s.pkg === 'VIP').length,
       usd: approved.reduce((n, r) => n + r.totalUsd, 0),
       bs: approved.reduce((n, r) => n + r.totalBs, 0),
       entered: Object.keys(checkIns).length,
@@ -227,7 +225,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {(
               [
-                ['Entradas vendidas', String(stats.sold), `General ${stats.general} · VIP ${stats.vip}`],
+                ['Entradas vendidas', String(stats.sold), 'aprobadas'],
                 ['Por revisar', String(stats.pending), stats.pending === 1 ? 'pago' : 'pagos'],
                 ['Recaudado', `$${stats.usd.toFixed(2)}`, `Bs. ${formatBs(stats.bs)}`],
                 ['Ingresaron', String(stats.entered), `de ${stats.sold}`],

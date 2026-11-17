@@ -173,7 +173,7 @@ async function getBcvRate(): Promise<number | null> {
 type Reserva = {
   locatorCode: string;
   createdAt: number;
-  seats: { id: string; fila: string; num: number; pkg: 'General' | 'VIP' }[];
+  seats: { id: string; fila: string; num: number; pkg: 'General' }[];
   buyer: { fullName: string; phone: string };
   paymentReport: { referenceNumber: string; bank: string; payerPhone: string; reportedAt: number };
   approvalStatus: 'pending_approval' | 'approved' | 'rejected';
@@ -280,7 +280,7 @@ async function startServer() {
     const seatIds: string[] = Array.isArray(b.seats) ? b.seats.map((s: any) => String(s?.id || '').toUpperCase()) : [];
     const seats: Reserva['seats'] = (Array.isArray(b.seats) ? b.seats : []).map((s: any, i: number) => {
       const [fila, num] = seatIds[i].split('-');
-      return { id: seatIds[i], fila, num: Number(num), pkg: s?.pkg === 'VIP' ? 'VIP' : 'General' } as Reserva['seats'][number];
+      return { id: seatIds[i], fila, num: Number(num), pkg: 'General' } as Reserva['seats'][number];
     });
     const fullName = clip(b.buyer?.fullName, 80);
     const phone = clip(b.buyer?.phone, 20);

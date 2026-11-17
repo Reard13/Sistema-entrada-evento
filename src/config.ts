@@ -6,30 +6,30 @@
  */
 
 export const EVENTO = {
-  nombre: 'Nombre del Evento',
-  edicion: '2027',
-  lema: 'Una noche que no te puedes perder',
+  nombre: 'Sanremo Sin Fronteras canta en Navidad',
+  edicion: '2026',
+  lema: 'Las mejores canciones navideñas internacionales',
   descripcion:
-    'Escribe aquí de qué trata el evento: qué van a ver, quién lo organiza y por qué vale la pena asistir.',
-  organizador: 'Organización Ejemplo',
+    'Las mejores canciones navideñas internacionales, interpretadas por el elenco de Sanremo Sin Fronteras.',
+  organizador: 'Sanremo Sin Fronteras',
 
   // Fecha y hora de inicio con la zona horaria de Venezuela (-04:00)
-  fechaISO: '2027-03-20T19:00:00-04:00',
-  fechaTexto: 'Sábado 20 de marzo',
-  fechaCorta: '20 Mar',
-  horaTexto: '7:00 PM',
+  fechaISO: '2026-12-11T19:30:00-04:00',
+  fechaTexto: 'Viernes 11 de diciembre',
+  fechaCorta: '11 Dic',
+  horaTexto: '7:30 PM',
 
-  lugar: 'Teatro Municipal',
-  ciudad: 'Ciudad, Estado',
+  lugar: 'Iglesia Prados del Este',
+  ciudad: 'Caracas',
   // Enlace de Google Maps (opcional)
-  mapaUrl: '',
+  mapaUrl: 'https://maps.app.goo.gl/eKA95Eiten6ZQraE6',
 
   // Dirección pública de la web (para la vista previa al compartir el enlace)
   urlPublica: 'https://mi-evento.onrender.com',
 };
 
 // Prefijo del localizador de cada compra (ej. #EVT-12345678)
-export const PREFIJO_LOCALIZADOR = 'EVT';
+export const PREFIJO_LOCALIZADOR = 'SSF';
 
 // WhatsApp que recibe los reportes de pago (código de país sin «+», ej. 584141234567)
 export const WHATSAPP = '584140000000';
@@ -44,17 +44,12 @@ export const COLORES = {
   vip: '#C5A059', // detalle dorado de la entrada VIP
 };
 
-// Tipos de entrada. El comprador elige el tipo antes de elegir asientos.
+// Entrada única del evento.
 export const ENTRADAS = {
   General: {
-    precio: 10,
+    precio: 20,
     descripcion: 'Tu lugar para disfrutar del evento.',
     beneficios: ['Asiento numerado a tu elección', 'Entrada digital con código QR'],
-  },
-  VIP: {
-    precio: 20,
-    descripcion: 'La mejor experiencia del evento.',
-    beneficios: ['Asiento numerado a tu elección', 'Entrada digital VIP con código QR', 'Beneficios exclusivos VIP'],
   },
 } as const;
 
