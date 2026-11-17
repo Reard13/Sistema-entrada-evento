@@ -2,11 +2,11 @@
 
 /* Colores de la marca: los valores reales se toman de src/config.ts al cargar la página (ver main.tsx) */
 :root {
-  --marca: #6d28d9;
-  --marca-oscuro: #4c1d95;
-  --fondo-oscuro: #1e1b4b;
-  --suave: #f5f3ff;
-  --vip: #c5a059;
+  --marca: #a60b08;
+  --marca-oscuro: #5e0001;
+  --fondo-oscuro: #1d2e19;
+  --suave: #edebe6;
+  --vip: #76584c;
 }
 
 @theme inline {

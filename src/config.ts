@@ -40,11 +40,11 @@ export const INSTAGRAM = ''; // ej. 'mievento' (sin @). Vacío = no se muestra.
 
 // Colores de la marca (hex). Toda la web toma estos colores.
 export const COLORES = {
-  marca: '#6D28D9', // color principal: botones, títulos, asientos
-  marcaOscuro: '#4C1D95', // textos fuertes y hover
-  fondoOscuro: '#1E1B4B', // portada, barra de compra y entrada
-  suave: '#F5F3FF', // fondos claros
-  vip: '#C5A059', // detalle dorado de la entrada VIP
+  marca: '#A60B08', // rojo navidad: botones y asientos
+  marcaOscuro: '#5E0001', // rojo vino: textos fuertes y hover
+  fondoOscuro: '#1D2E19', // verde pino: portada, barra de compra y entrada
+  suave: '#EDEBE6', // crema (#CFCABF aclarado): fondos claros
+  vip: '#76584C', // marrón de la paleta (sin uso: no hay entrada VIP)
 };
 
 // Entrada única del evento.
