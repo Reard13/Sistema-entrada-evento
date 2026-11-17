@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { X, Search } from 'lucide-react';
 import { ReservationData } from '../types';
 import { lookupReservations } from '../utils/api';
+import { etiquetaEntrada } from '../constants';
+import { ASIENTOS_NUMERADOS } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -97,7 +99,7 @@ export const TicketLookupModal: React.FC<Props> = ({ isOpen, onClose, onSelectRe
                     <span className="font-bold text-oscuro">{r.locatorCode}</span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS[r.approvalStatus][1]}`}>{STATUS[r.approvalStatus][0]}</span>
                   </span>
-                  <span className="block text-sm text-gray-600">Asientos: {r.seats.map((s) => s.id).join(', ')}</span>
+                  <span className="block text-sm text-gray-600">{ASIENTOS_NUMERADOS ? 'Asientos' : 'Entradas'}: {r.seats.map((s) => etiquetaEntrada(s)).join(', ')}</span>
                 </button>
               </li>
             ))}

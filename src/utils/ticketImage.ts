@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { COLORES, EVENTO, PREFIJO_LOCALIZADOR } from '../config';
+import { ASIENTOS_NUMERADOS, COLORES, EVENTO, PREFIJO_LOCALIZADOR } from '../config';
 import { ReservationData, SelectedSeat } from '../types';
 import { canvasToPngBlob } from './saveImage';
 
@@ -161,12 +161,20 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.textAlign = 'center';
   ctx.fillStyle = '#6B7280';
   ctx.font = '600 24px "Jost", sans-serif';
-  ctx.fillText('FILA', cx - 90, 470);
-  ctx.fillText('ASIENTO', cx + 90, 470);
-  ctx.fillStyle = COLORES.fondoOscuro;
-  ctx.font = '800 76px "Jost", sans-serif';
-  ctx.fillText(seat.fila, cx - 90, 550);
-  ctx.fillText(String(seat.num), cx + 90, 550);
+  ctx.fillStyle = '#6B7280';
+  if (ASIENTOS_NUMERADOS) {
+    ctx.fillText('FILA', cx - 90, 470);
+    ctx.fillText('ASIENTO', cx + 90, 470);
+    ctx.fillStyle = COLORES.fondoOscuro;
+    ctx.font = '800 76px "Jost", sans-serif';
+    ctx.fillText(seat.fila, cx - 90, 550);
+    ctx.fillText(String(seat.num), cx + 90, 550);
+  } else {
+    ctx.fillText('ENTRADA N°', cx, 470);
+    ctx.fillStyle = COLORES.fondoOscuro;
+    ctx.font = '800 76px "Jost", sans-serif';
+    ctx.fillText(String(seat.num), cx, 550);
+  }
 
   ctx.fillStyle = '#9CA3AF';
   ctx.font = '600 24px "Jost", sans-serif';

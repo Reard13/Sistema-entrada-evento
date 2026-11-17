@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, Plugin } from 'vite';
-import { COLORES, EVENTO } from './src/config';
+import { ASIENTOS_NUMERADOS, COLORES, EVENTO } from './src/config';
 
 // Llena el título, la descripción y la vista previa del enlace con los datos de src/config.ts
 const datosDelEvento = (): Plugin => ({
@@ -9,7 +9,7 @@ const datosDelEvento = (): Plugin => ({
   transformIndexHtml: (html) =>
     html
       .replaceAll('%TITULO%', `${EVENTO.nombre} ${EVENTO.edicion}`)
-      .replaceAll('%DESCRIPCION%', `${EVENTO.fechaTexto}, ${EVENTO.horaTexto} · ${EVENTO.lugar}. Elige tu asiento y compra tu entrada aquí.`)
+      .replaceAll('%DESCRIPCION%', `${EVENTO.fechaTexto}, ${EVENTO.horaTexto} · ${EVENTO.lugar}. ${ASIENTOS_NUMERADOS ? 'Elige tu asiento y compra' : 'Compra'} tu entrada aquí.`)
       .replaceAll('%URL%', EVENTO.urlPublica.replace(/\/$/, ''))
       .replaceAll('%COLOR%', COLORES.fondoOscuro),
 });

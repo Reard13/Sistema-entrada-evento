@@ -52,7 +52,7 @@ export const ENTRADAS = {
   General: {
     precio: 20,
     descripcion: 'Tu lugar para disfrutar del evento.',
-    beneficios: ['Asiento numerado a tu elección', 'Entrada digital con código QR'],
+    beneficios: ['Acceso general, sin asiento asignado', 'Entrada digital con código QR'],
   },
 } as const;
 
@@ -71,7 +71,19 @@ export const MINUTOS_RESERVA = 15;
 export const TASA_BCV_RESPALDO = 100;
 
 /**
- * Mapa de asientos: secciones con sus filas.
+ * Asientos numerados o entrada libre.
+ *  true  = el comprador elige su asiento en el MAPA de abajo.
+ *  false = no hay mapa: el comprador elige cuántas entradas quiere y cada una sale numerada
+ *          (N° 1, N° 2…) hasta llegar a CAPACIDAD. El MAPA se ignora.
+ */
+export const ASIENTOS_NUMERADOS = false;
+// Entradas a la venta cuando no hay asientos numerados (aforo del lugar)
+export const CAPACIDAD = 150;
+// Máximo de entradas en una sola compra
+export const MAX_POR_COMPRA = 10;
+
+/**
+ * Mapa de asientos (solo con ASIENTOS_NUMERADOS = true): secciones con sus filas.
  *  f = letra de la fila, c = cantidad de asientos.
  */
 export const MAPA = {
@@ -110,8 +122,8 @@ export const TERMINOS: { titulo: string; puntos: string[] }[] = [
     ],
   },
   {
-    titulo: 'Asientos',
-    puntos: ['El asiento elegido es el que aparece en la entrada. No se hacen cambios de asiento.'],
+    titulo: 'Ubicación',
+    puntos: ['No hay asientos numerados: la ubicación es por orden de llegada.'],
   },
   {
     titulo: 'Reembolsos',

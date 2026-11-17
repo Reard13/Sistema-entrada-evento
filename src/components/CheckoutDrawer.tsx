@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, MessageCircle, ChevronDown } from 'lucide-react';
 import { SelectedSeat, ReservationData } from '../types';
-import { EVENTO, PAGO_MOVIL, WHATSAPP, TERMINOS_VERSION } from '../config';
-import { BANCOS_VENEZUELA, precioEntrada, totalEntradasUsd } from '../constants';
+import { ASIENTOS_NUMERADOS, EVENTO, PAGO_MOVIL, WHATSAPP, TERMINOS_VERSION } from '../config';
+import { BANCOS_VENEZUELA, etiquetaEntrada, palabraEntrada, precioEntrada, totalEntradasUsd } from '../constants';
 import { formatBs } from '../utils/exchangeRate';
 import { submitReservation } from '../utils/api';
 import { TermsModal } from './TermsModal';
@@ -101,13 +101,13 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
     }
 
     const r = result.reservation;
-    const seatsLine = r.seats.map((s) => `${s.id} (${s.pkg})`).join(', ');
+    const seatsLine = r.seats.map((s) => etiquetaEntrada(s)).join(', ');
     const payerLine = effectivePayerPhone !== buyer.phone.trim() ? `\nPagado desde: ${effectivePayerPhone}` : '';
     const waMsg =
       `*Reporte de pago · ${EVENTO.nombre}*\n` +
       `Localizador: *${r.locatorCode}*\n\n` +
       `*${r.buyer.fullName}* · ${r.buyer.phone}\n` +
-      `${r.seats.length === 1 ? 'Asiento' : `Asientos (${r.seats.length})`}: ${seatsLine}\n\n` +
+      `${ASIENTOS_NUMERADOS ? (r.seats.length === 1 ? 'Asiento' : `Asientos (${r.seats.length})`) : r.seats.length === 1 ? 'Entrada' : `Entradas (${r.seats.length})`}: ${seatsLine}\n\n` +
       `Ref. *${reference}* · ${bank}${payerLine}\n` +
       `Monto: *Bs. ${formatBs(r.totalBs)}* ($${r.totalUsd.toFixed(2)}) · Tasa ${formatBs(r.bcvRate)}\n\n` +
       `Por favor verifiquen el pago para liberar mi QR. ¡Gracias!`;
@@ -170,7 +170,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               Finalizar compra
             </h2>
             <p className="text-xs text-gray-500 font-semibold mt-0.5">
-              {selectedSeats.length} {selectedSeats.length === 1 ? 'asiento' : 'asientos'} · {EVENTO.lugar} · {EVENTO.fechaCorta}
+              {selectedSeats.length} {palabraEntrada(selectedSeats.length)} · {EVENTO.lugar} · {EVENTO.fechaCorta}
             </p>
           </div>
           <button
@@ -186,12 +186,18 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-5 py-4 space-y-4">
 
           {/* Banner Temporizador */}
-          <HoldingTimerBanner secondsLeft={secondsLeft} totalSeconds={totalSeconds} />
+          {ASIENTOS_NUMERADOS && <HoldingTimerBanner secondsLeft={secondsLeft} totalSeconds={totalSeconds} />}
 
           {/* Tu pedido: asientos, aporte opcional y total */}
           <section className="rounded-2xl border border-gray-200 p-4 space-y-3">
             <div className="flex flex-wrap gap-1.5">
-              {selectedSeats.map((seat) => (
+              {!ASIENTOS_NUMERADOS && selectedSeats.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-suave border border-gray-200 pl-1 pr-2.5 py-1 text-xs font-bold text-oscuro">
+                  <span className="rounded-full bg-marca text-white px-2 py-0.5 text-[11px] font-bold">{selectedSeats.length} ×</span>
+                  Entrada {selectedSeats[0].pkg} · ${precioEntrada(selectedSeats[0].pkg)}
+                </span>
+              )}
+              {ASIENTOS_NUMERADOS && selectedSeats.map((seat) => (
                 <span
                   key={seat.id}
                   className="inline-flex items-center gap-1.5 rounded-full bg-suave border border-gray-200 pl-1 pr-2.5 py-1 text-xs font-bold text-oscuro"
@@ -390,7 +396,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
             className="w-full py-3.5 px-5 rounded-2xl bg-marca hover:bg-marca-oscuro text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <MessageCircle className="w-4 h-4" />
-            <span>{isSubmitting ? 'Reservando asientos…' : 'Enviar reporte por WhatsApp'}</span>
+            <span>{isSubmitting ? 'Enviando…' : 'Enviar reporte por WhatsApp'}</span>
           </button>
           <p className="text-xs text-center text-gray-500 font-medium mt-2">
             Verificaremos tu pago y te enviaremos tu QR de acceso.

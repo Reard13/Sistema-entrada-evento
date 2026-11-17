@@ -7,7 +7,8 @@ import { DigitalTicketModal } from './components/DigitalTicketModal';
 import { TicketLookupModal } from './components/TicketLookupModal';
 import { Footer } from './components/Footer';
 import { PackageType, SelectedSeat, ReservationData } from './types';
-import { MINUTOS_RESERVA } from './config';
+import { ASIENTOS_NUMERADOS, CAPACIDAD, MINUTOS_RESERVA } from './config';
+import { entradasLibres } from './constants';
 import { connectRealtime, fetchBlockedSeats, forgetTicket, lookupReservations, rememberedTicket, rememberTicket, RESERVAS_EVENT } from './utils/api';
 import { fetchLatestBcvRate, getInitialBcvRate } from './utils/exchangeRate';
 import { readSession } from './utils/adminSession';
@@ -81,6 +82,7 @@ export default function App() {
 
   // Si otro comprador toma un asiento que esta persona tenía seleccionado, se quita y se avisa
   useEffect(() => {
+    if (!ASIENTOS_NUMERADOS) return; // sin asientos, el servidor asigna las entradas al comprar
     const taken = selectedSeats.filter((s) => blockedSeatIds.includes(s.id));
     if (taken.length === 0) return;
     setSelectedSeats((prev) => prev.filter((s) => !blockedSeatIds.includes(s.id)));
@@ -89,7 +91,7 @@ export default function App() {
   }, [blockedSeatIds]);
 
   // Temporizador: los asientos se guardan MINUTOS_RESERVA minutos desde el primero elegido
-  const timerActive = selectedSeats.length > 0;
+  const timerActive = ASIENTOS_NUMERADOS && selectedSeats.length > 0;
   useEffect(() => {
     if (!timerActive) {
       setSecondsLeft(TOTAL_SECONDS);
@@ -109,6 +111,16 @@ export default function App() {
     setActivePackage(pkg);
     setView('map');
     window.scrollTo({ top: 0 });
+  };
+  // Sin asientos numerados: se elige la cantidad y se pasa directo al pago
+  const buyQuantity = (cantidad: number) => {
+    const libres = entradasLibres(blockedSeatIds, cantidad);
+    if (libres.length < cantidad) {
+      window.alert(libres.length ? `Solo quedan ${libres.length} entradas.` : 'Las entradas se agotaron.');
+      return;
+    }
+    setSelectedSeats(libres.map((s) => ({ ...s, pkg: 'General' as PackageType })));
+    setDrawerOpen(true);
   };
   const goHome = () => {
     setView('home');
@@ -150,7 +162,7 @@ export default function App() {
 
       <main className="flex-1">
         {view === 'home' ? (
-          <HeroAndPackages bcvRate={bcvRate} onSelectPackage={goToMap} />
+          <HeroAndPackages bcvRate={bcvRate} onSelectPackage={goToMap} onBuyQuantity={buyQuantity} disponibles={CAPACIDAD - blockedSeatIds.length} />
         ) : (
           <SeatMap
             selectedSeats={selectedSeats}

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { X, Download, Clock, AlertTriangle } from 'lucide-react';
 import { ReservationData, SelectedSeat } from '../types';
-import { EVENTO } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO } from '../config';
+import { etiquetaEntrada } from '../constants';
 import { drawTicket, qrPayload, ticketBlob } from '../utils/ticketImage';
 import { saveImages } from '../utils/saveImage';
 import { lookupReservations, RESERVAS_EVENT } from '../utils/api';
@@ -104,7 +105,7 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
           <div role="alert" className="mt-4 flex gap-3 rounded-2xl bg-red-50 border border-red-200 p-4 text-red-900">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <p className="text-sm">
-              <strong>Pago no verificado.</strong> {reservation.rejectionReason} Los asientos se liberaron. Si crees que es un error, escríbenos por WhatsApp.
+              <strong>Pago no verificado.</strong> {reservation.rejectionReason} {ASIENTOS_NUMERADOS ? 'Los asientos se liberaron.' : 'Las entradas se liberaron.'} Si crees que es un error, escríbenos por WhatsApp.
             </p>
           </div>
         )}
@@ -112,15 +113,15 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
         <div className="mt-5 space-y-4">
           {reservation.seats.map((s) => (
             <figure key={s.id}>
-              {n > 1 && <figcaption className="mb-1.5 text-sm font-bold text-oscuro">Asiento {s.id}</figcaption>}
+              {n > 1 && <figcaption className="mb-1.5 text-sm font-bold text-oscuro">{ASIENTOS_NUMERADOS ? `Asiento ${s.id}` : `Entrada ${etiquetaEntrada(s)}`}</figcaption>}
               <button
                 type="button"
                 onClick={() => openQr(s)}
                 disabled={!approved}
                 className={`block w-full aspect-[5/2] rounded-2xl overflow-hidden bg-gray-100 ${approved ? 'cursor-zoom-in' : 'cursor-default'}`}
-                aria-label={approved ? `Mostrar el QR del asiento ${s.id} en grande` : `Entrada del asiento ${s.id}`}
+                aria-label={approved ? `Mostrar el QR de ${etiquetaEntrada(s)} en grande` : `Entrada ${etiquetaEntrada(s)}`}
               >
-                {images[s.id] && <img src={images[s.id]} alt={`Entrada ${s.pkg} · asiento ${s.id}`} className="w-full h-full object-contain" />}
+                {images[s.id] && <img src={images[s.id]} alt={`Entrada ${s.pkg} · ${etiquetaEntrada(s)}`} className="w-full h-full object-contain" />}
               </button>
             </figure>
           ))}
@@ -139,11 +140,11 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
       </div>
 
       {bigQr && (
-        <div role="dialog" aria-label={`QR del asiento ${bigQr.seat.id}`} onClick={() => setBigQr(null)} className="fixed inset-0 z-[3100] flex flex-col items-center justify-center gap-4 p-6 bg-oscuro/95">
+        <div role="dialog" aria-label={`QR de ${etiquetaEntrada(bigQr.seat)}`} onClick={() => setBigQr(null)} className="fixed inset-0 z-[3100] flex flex-col items-center justify-center gap-4 p-6 bg-oscuro/95">
           <div className="w-full max-w-[min(88vw,420px)] aspect-square rounded-3xl bg-white p-4">
-            <img src={bigQr.url} alt={`QR del asiento ${bigQr.seat.id}`} className="w-full h-full object-contain" />
+            <img src={bigQr.url} alt={`QR de ${etiquetaEntrada(bigQr.seat)}`} className="w-full h-full object-contain" />
           </div>
-          <p className="text-white font-extrabold text-xl">Asiento {bigQr.seat.id}</p>
+          <p className="text-white font-extrabold text-xl">{ASIENTOS_NUMERADOS ? `Asiento ${bigQr.seat.id}` : `Entrada ${etiquetaEntrada(bigQr.seat)}`}</p>
           <button type="button" className="min-h-[44px] px-6 rounded-full bg-white text-oscuro font-bold cursor-pointer">
             Cerrar
           </button>
