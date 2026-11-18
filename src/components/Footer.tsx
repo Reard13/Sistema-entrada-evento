@@ -27,7 +27,13 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
             ) : (
               <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="mb-4 h-20 w-auto" />
             ))}
-          <p className="font-display font-bold text-xl sm:text-2xl">{EVENTO.nombre}</p>
+          {INSTAGRAM_URL ? (
+            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="font-display font-bold text-xl sm:text-2xl hover:underline underline-offset-4 w-fit">
+              {EVENTO.nombre}
+            </a>
+          ) : (
+            <p className="font-display font-bold text-xl sm:text-2xl">{EVENTO.nombre}</p>
+          )}
           <p className="mt-2 text-[15px] leading-relaxed text-tenue">
             {EVENTO.fechaTexto} · {EVENTO.horaTexto}
             <br />

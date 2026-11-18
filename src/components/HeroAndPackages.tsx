@@ -33,6 +33,22 @@ function useCountdown(target: number) {
   };
 }
 
+// Cada mención de «Sanremo Sin Fronteras» en el texto lleva a su Instagram
+const NOMBRE_ORGANIZADOR = 'Sanremo Sin Fronteras';
+const conEnlace = (texto: string): React.ReactNode[] => {
+  if (!INSTAGRAM_URL) return [texto];
+  return texto.split(NOMBRE_ORGANIZADOR).flatMap((parte, i, partes) =>
+    i < partes.length - 1
+      ? [
+          parte,
+          <a key={`ig-${i}`} href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-marca-oscuro">
+            {NOMBRE_ORGANIZADOR}
+          </a>,
+        ]
+      : [parte]
+  );
+};
+
 // Etiqueta pequeña en mayúsculas con letras separadas
 const Eyebrow: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => (
   <span className={`text-xs sm:text-[13px] font-semibold tracking-[0.28em] uppercase ${className}`}>{children}</span>
@@ -137,7 +153,13 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
 
           {EVENTO.logoTitulo ? (
             <h1 className="w-full max-w-4xl">
-              <img src={EVENTO.logoTitulo} alt={EVENTO.nombre} className="block w-full h-auto drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)]" />
+              {INSTAGRAM_URL ? (
+                <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label={`${EVENTO.nombre}: ver en Instagram`} className="block rounded-lg">
+                  <img src={EVENTO.logoTitulo} alt={EVENTO.nombre} className="block w-full h-auto drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)]" />
+                </a>
+              ) : (
+                <img src={EVENTO.logoTitulo} alt={EVENTO.nombre} className="block w-full h-auto drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)]" />
+              )}
             </h1>
           ) : (
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
@@ -240,7 +262,13 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#DDD7CB]">
                 <div className="flex flex-col gap-1 min-w-0">
                   <span className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Tu entrada</span>
-                  <span className="font-display font-bold text-xl sm:text-2xl leading-tight text-oscuro text-balance">{EVENTO.nombre}</span>
+                  {INSTAGRAM_URL ? (
+                    <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="font-display font-bold text-xl sm:text-2xl leading-tight text-oscuro text-balance hover:underline underline-offset-4">
+                      {EVENTO.nombre}
+                    </a>
+                  ) : (
+                    <span className="font-display font-bold text-xl sm:text-2xl leading-tight text-oscuro text-balance">{EVENTO.nombre}</span>
+                  )}
                 </div>
                 <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#E6E0D3] text-marca-oscuro text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
                   Admisión general
@@ -371,7 +399,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             <Eyebrow className="text-marca">El concierto</Eyebrow>
             <h2 className="font-display font-bold text-3xl sm:text-5xl leading-tight text-oscuro text-balance">{EVENTO.titularConcierto}</h2>
             <p className="text-lg sm:text-xl leading-relaxed text-[#4A4640] text-pretty">
-              {EVENTO.descripcion.replace(/\.$/, '')} en {EVENTO.lugar}.
+              {conEnlace(EVENTO.descripcion.replace(/\.$/, ''))} en {EVENTO.lugar}.
             </p>
           </div>
           <div className="flex-[1_1_320px] min-w-0 bg-white border border-linea rounded-[20px] p-6 sm:p-7 flex flex-col gap-4">
