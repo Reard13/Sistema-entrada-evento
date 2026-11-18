@@ -117,6 +117,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
 
           <div className="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-3 pt-2">
             <a
+              id="hero-cta"
               href="#entradas"
               className="inline-flex items-center justify-center gap-2 min-h-[56px] px-9 rounded-full bg-marca hover:bg-marca-oscuro text-white font-semibold text-base sm:text-lg"
             >

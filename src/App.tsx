@@ -6,6 +6,7 @@ import { CheckoutDrawer } from './components/CheckoutDrawer';
 import { DigitalTicketModal } from './components/DigitalTicketModal';
 import { TicketLookupModal } from './components/TicketLookupModal';
 import { Footer } from './components/Footer';
+import { FloatingBuy } from './components/FloatingBuy';
 import { PackageType, SelectedSeat, ReservationData } from './types';
 import { ASIENTOS_NUMERADOS, CAPACIDAD, MINUTOS_RESERVA } from './config';
 import { entradasLibres } from './constants';
@@ -178,6 +179,7 @@ export default function App() {
       </main>
 
       {view === 'home' && <Footer onOpenPanel={() => openPanel(true)} />}
+      {view === 'home' && <FloatingBuy hidden={drawerOpen || lookupOpen || !!ticket || panelOpen} />}
 
       <CheckoutDrawer
         isOpen={drawerOpen}
