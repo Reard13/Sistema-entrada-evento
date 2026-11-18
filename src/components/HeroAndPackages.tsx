@@ -307,8 +307,8 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             </div>
 
             {/* Lado de la compra */}
-            <div ref={stubRef} className="relative z-0 will-change-transform md:w-[340px] md:shrink-0 min-w-0 p-6 sm:p-10 flex flex-col justify-center gap-5 bg-white">
-              <span className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Talón · tu compra</span>
+            <div ref={stubRef} className="relative z-0 will-change-transform md:w-[340px] md:shrink-0 min-w-0 px-5 py-4 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5 bg-white">
+              <span className="hidden md:block text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Talón · tu compra</span>
               {ASIENTOS_NUMERADOS ? (
                 <button
                   type="button"
@@ -323,18 +323,18 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               ) : (
                 <>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-base font-semibold">Cantidad</span>
+                    <span className="text-sm sm:text-base font-semibold">Cantidad</span>
                     <div className="inline-flex items-center gap-1 rounded-full border border-linea p-1">
                       <button
                         type="button"
                         aria-label="Una entrada menos"
                         disabled={cant <= 1}
                         onClick={() => setCantidad(Math.max(1, cant - 1))}
-                        className="w-11 h-11 rounded-full bg-crema text-marca-oscuro grid place-items-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-crema text-marca-oscuro grid place-items-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-11 text-center font-display font-bold text-2xl tabular-nums" aria-live="polite">
+                      <span className="w-10 sm:w-11 text-center font-display font-bold text-xl sm:text-2xl tabular-nums" aria-live="polite">
                         {cant}
                       </span>
                       <button
@@ -342,24 +342,24 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                         aria-label="Una entrada más"
                         disabled={cant >= maximo}
                         onClick={() => setCantidad(Math.min(maximo, cant + 1))}
-                        className="w-11 h-11 rounded-full bg-crema text-marca-oscuro grid place-items-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-crema text-marca-oscuro grid place-items-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                   {disponibles <= 20 && <p className="-mt-2 text-right text-sm font-semibold text-marca">Quedan {disponibles} entradas</p>}
-                  <div className="flex items-baseline justify-between pt-4 border-t border-[#ECE7DD]">
+                  <div className="flex items-baseline justify-between pt-3 sm:pt-4 border-t border-[#ECE7DD]">
                     <span className="text-sm tracking-[0.16em] uppercase text-cafe">Total</span>
                     <span className="text-right">
-                      <span className="block font-display font-bold text-4xl text-oscuro tabular-nums">${precio * cant}</span>
+                      <span className="block font-display font-bold text-3xl sm:text-4xl text-oscuro tabular-nums">${precio * cant}</span>
                       <span className="block text-sm font-medium text-cafe">Bs. {formatBs(precio * cant * bcvRate)}</span>
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => tear(() => onBuyQuantity(cant))}
-                    className="min-h-[56px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-semibold text-lg inline-flex items-center justify-center gap-2 cursor-pointer"
+                    className="min-h-[50px] sm:min-h-[56px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-semibold text-base sm:text-lg inline-flex items-center justify-center gap-2 cursor-pointer"
                   >
                     Continuar al pago
                     <ArrowRight className="w-5 h-5" />
@@ -367,7 +367,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                 </>
               )}
               {/* Código de barras decorativo del talón */}
-              <div aria-hidden="true" className="mt-1 h-10 rounded-sm opacity-80 [background:repeating-linear-gradient(90deg,#0b100d_0_2px,transparent_2px_4px,#0b100d_4px_5px,transparent_5px_9px,#0b100d_9px_12px,transparent_12px_14px)]" />
+              <div aria-hidden="true" className="hidden md:block mt-1 h-10 rounded-sm opacity-80 [background:repeating-linear-gradient(90deg,#0b100d_0_2px,transparent_2px_4px,#0b100d_4px_5px,transparent_5px_9px,#0b100d_9px_12px,transparent_12px_14px)]" />
             </div>
           </div>
           <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en bolívares según la tasa BCV del día ({formatBs(bcvRate)} Bs/$).</p>
