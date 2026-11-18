@@ -162,7 +162,7 @@ export default function App() {
 
       <main className="flex-1">
         {view === 'home' ? (
-          <HeroAndPackages bcvRate={bcvRate} onSelectPackage={goToMap} onBuyQuantity={buyQuantity} disponibles={CAPACIDAD - blockedSeatIds.length} />
+          <HeroAndPackages bcvRate={bcvRate} onSelectPackage={goToMap} onBuyQuantity={buyQuantity} onOpenLookup={() => setLookupOpen(true)} disponibles={CAPACIDAD - blockedSeatIds.length} />
         ) : (
           <SeatMap
             selectedSeats={selectedSeats}
