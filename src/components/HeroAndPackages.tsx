@@ -123,13 +123,13 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
         <div className="max-w-5xl mx-auto px-4 pt-8 pb-12 sm:pt-20 sm:pb-24 flex flex-col items-center text-center gap-5 sm:gap-7">
           {EVENTO.logoMarca && (
             // En el teléfono el logo ya está en la barra superior: aquí solo en pantallas grandes
-            <div className="hidden sm:flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1">
               {INSTAGRAM_URL ? (
                 <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label={`${EVENTO.organizador} en Instagram`} className="rounded-lg">
-                  <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-36 sm:w-48 h-auto" />
+                  <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-32 sm:w-48 h-auto" />
                 </a>
               ) : (
-                <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-36 sm:w-48 h-auto" />
+                <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-32 sm:w-48 h-auto" />
               )}
               <Eyebrow className="text-tenue">presenta</Eyebrow>
             </div>
