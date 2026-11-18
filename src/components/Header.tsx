@@ -8,13 +8,16 @@ interface HeaderProps {
   onBuy: () => void;
 }
 
+// Logo completo del organizador (con el micrófono); si no hay, la versión de solo texto
+const logo = EVENTO.logoMarca || EVENTO.logoMarcaTexto;
+
 export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy }) => (
   <header className="sticky top-0 z-50 bg-oscuro text-crema border-b border-oro/15">
-    <div className="max-w-6xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-3">
+    <div className="max-w-6xl mx-auto px-4 h-[72px] sm:h-20 flex items-center justify-between gap-3">
       <button type="button" onClick={onGoHome} className="min-w-0 text-left cursor-pointer flex items-center gap-3">
-        {EVENTO.logoMarcaTexto && <img src={EVENTO.logoMarcaTexto} alt={EVENTO.organizador} className="h-9 sm:h-10 w-auto shrink-0" />}
-        <span className={EVENTO.logoMarcaTexto ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}>
-          {!EVENTO.logoMarcaTexto && <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>}
+        {logo && <img src={logo} alt={EVENTO.organizador} className="h-14 sm:h-16 w-auto shrink-0" />}
+        <span className={logo ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}>
+          {!logo && <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>}
           <span className="block text-[11px] sm:text-xs text-white/70 leading-tight">
             {EVENTO.fechaCorta} · {EVENTO.lugar}
           </span>

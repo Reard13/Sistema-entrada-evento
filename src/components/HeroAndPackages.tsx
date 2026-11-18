@@ -151,7 +151,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
       </section>
 
       {/* ---------- Entradas ---------- */}
-      <section id="entradas" className="scroll-mt-16 bg-oscuro text-crema px-4 pt-6 pb-16 sm:pt-12 sm:pb-24">
+      <section id="entradas" className="scroll-mt-20 bg-oscuro text-crema px-4 pt-6 pb-16 sm:pt-12 sm:pb-24">
         <div className="max-w-5xl mx-auto flex flex-col items-center gap-10">
           <div className="flex flex-col items-center gap-3 text-center">
             <Eyebrow className="text-oro">Entradas</Eyebrow>
