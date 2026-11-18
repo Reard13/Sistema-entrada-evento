@@ -23,48 +23,72 @@ const loadImage = (src: string) =>
     img.src = src;
   });
 
-function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, weight: number, size: number) {
+function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, weight: number, size: number, family = '"Jost", sans-serif') {
   let s = size;
   do {
-    ctx.font = `${weight} ${s}px "Jost", sans-serif`;
+    ctx.font = `${weight} ${s}px ${family}`;
     s -= 2;
   } while (ctx.measureText(text).width > maxWidth && s > 16);
 }
 
+// Etiqueta en mayúsculas con letras separadas (canvas no tiene letter-spacing en todos los navegadores)
+function spaced(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, spacing: number, align: 'left' | 'center' = 'left') {
+  const chars = [...text];
+  const total = chars.reduce((w, ch) => w + ctx.measureText(ch).width, 0) + spacing * (chars.length - 1);
+  let cx = align === 'center' ? x - total / 2 : x;
+  ctx.textAlign = 'left';
+  chars.forEach((ch) => {
+    ctx.fillText(ch, cx, y);
+    cx += ctx.measureText(ch).width + spacing;
+  });
+}
+
+const CREMA = '#F3F0EA';
+const ORO = '#F1E39A';
+const TENUE = '#B9B4A8';
+const CAFE = '#76584C';
+const SERIF = '"Playfair Display", Georgia, serif';
+
 export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promise<HTMLCanvasElement> {
-  await document.fonts?.load('800 40px "Jost"').catch(() => undefined);
+  await Promise.all([
+    document.fonts?.load('600 40px "Jost"'),
+    document.fonts?.load(`700 40px ${SERIF}`),
+  ]).catch(() => undefined);
   const c = document.createElement('canvas');
   c.width = TICKET_W;
   c.height = TICKET_H;
   const ctx = c.getContext('2d')!;
 
-  // Forma con esquinas redondeadas y muescas en la línea de corte
+  // Forma con esquinas redondeadas
   ctx.save();
   ctx.beginPath();
   ctx.roundRect(0, 0, TICKET_W, TICKET_H, 48);
   ctx.clip();
 
-  // Cuerpo: degradado oscuro → marca
-  const g = ctx.createLinearGradient(0, 0, STUB_X, TICKET_H);
+  // Cuerpo: foto de la portada bajo una capa oscura (o solo el color si no hay foto)
+  ctx.fillStyle = COLORES.fondoOscuro;
+  ctx.fillRect(0, 0, STUB_X, TICKET_H);
+  if (EVENTO.fotoPortada) {
+    const foto = await loadImage(EVENTO.fotoPortada).catch(() => null);
+    if (foto) {
+      const scale = Math.max(STUB_X / foto.width, TICKET_H / foto.height);
+      const w = foto.width * scale;
+      const h = foto.height * scale;
+      ctx.drawImage(foto, (STUB_X - w) / 2, (TICKET_H - h) * 0.35, w, h);
+    }
+  }
+  const g = ctx.createLinearGradient(0, 0, STUB_X, 0);
   g.addColorStop(0, COLORES.fondoOscuro);
-  g.addColorStop(1, COLORES.marca);
+  g.addColorStop(0.45, 'rgba(11,16,13,0.92)');
+  g.addColorStop(1, 'rgba(11,16,13,0.72)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, STUB_X, TICKET_H);
-
-  // Círculos decorativos suaves
-  ctx.fillStyle = 'rgba(255,255,255,0.06)';
-  ctx.beginPath();
-  ctx.arc(STUB_X - 120, -60, 320, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(80, TICKET_H + 40, 220, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Talón
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(STUB_X, 0, TICKET_W - STUB_X, TICKET_H);
   ctx.fillStyle = COLORES.marca;
-  ctx.fillRect(STUB_X, 0, TICKET_W - STUB_X, 18);
+  ctx.fillRect(0, 0, STUB_X, 14);
+
+  // Talón crema
+  ctx.fillStyle = CREMA;
+  ctx.fillRect(STUB_X, 0, TICKET_W - STUB_X, TICKET_H);
   ctx.restore();
 
   // Muescas y línea perforada
@@ -76,9 +100,9 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
     ctx.fill();
   });
   ctx.restore();
-  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
-  ctx.setLineDash([14, 12]);
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#CFCABF';
+  ctx.setLineDash([16, 12]);
+  ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(STUB_X, 50);
   ctx.lineTo(STUB_X, TICKET_H - 50);
@@ -86,99 +110,105 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.setLineDash([]);
 
   // ---- Cuerpo ----
-  const x = 90;
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.font = '600 30px "Jost", sans-serif';
-  ctx.fillText(EVENTO.organizador.toUpperCase(), x, 110);
+  const x = 80;
+  const right = STUB_X - 80;
+  ctx.fillStyle = ORO;
+  ctx.font = '600 24px "Jost", sans-serif';
+  spaced(ctx, 'ENTRADA GENERAL', x, 92, 7);
 
-  ctx.fillStyle = '#FFFFFF';
-  fitText(ctx, EVENTO.nombre, STUB_X - x - 90, 800, 104);
-  ctx.fillText(EVENTO.nombre, x, 220);
-  ctx.font = '500 40px "Jost", sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.fillText(EVENTO.edicion, x, 280);
+  // Título: el logo del evento si existe; si no, el nombre en serif
+  const logo = EVENTO.logoTitulo ? await loadImage(EVENTO.logoTitulo).catch(() => null) : null;
+  if (logo && logo.width) {
+    const w = right - x;
+    const h = (logo.height / logo.width) * w;
+    ctx.drawImage(logo, x, 122, w, h);
+  } else {
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, EVENTO.nombre, right - x, 700, 84, SERIF);
+    ctx.textAlign = 'left';
+    ctx.fillText(EVENTO.nombre, x, 230);
+  }
 
-  // Tipo de entrada
-  const tipo = 'GENERAL';
-  ctx.font = '800 34px "Jost", sans-serif';
-  const tw = ctx.measureText(tipo).width + 64;
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  ctx.beginPath();
-  ctx.roundRect(x, 330, tw, 64, 32);
-  ctx.fill();
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(tipo, x + 32, 375);
-
-  // Fecha, hora y lugar
+  // Fecha, hora y lugar sobre una línea fina dorada
+  ctx.fillStyle = 'rgba(241,227,154,0.3)';
+  ctx.fillRect(x, 440, right - x, 2);
   const meta: [string, string][] = [
     ['FECHA', EVENTO.fechaTexto],
     ['HORA', EVENTO.horaTexto],
     ['LUGAR', EVENTO.lugar],
   ];
-  let mx = x;
+  const colW = (right - x) / 3;
   meta.forEach(([label, value], i) => {
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.font = '600 24px "Jost", sans-serif';
-    ctx.fillText(label, mx, 480);
-    ctx.fillStyle = '#FFFFFF';
-    const maxW = i === 2 ? STUB_X - mx - 80 : 420;
-    fitText(ctx, value, maxW, 700, 38);
-    ctx.fillText(value, mx, 530);
-    mx += Math.min(ctx.measureText(value).width, maxW) + 70;
+    const mx = x + colW * i;
+    ctx.fillStyle = TENUE;
+    ctx.font = '500 20px "Jost", sans-serif';
+    spaced(ctx, label, mx, 488, 5);
+    ctx.fillStyle = CREMA;
+    fitText(ctx, value, colW - 24, 600, 32);
+    ctx.textAlign = 'left';
+    ctx.fillText(value, mx, 532);
   });
 
   // Titular
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '600 24px "Jost", sans-serif';
-  ctx.fillText('A NOMBRE DE', x, 610);
+  ctx.fillStyle = TENUE;
+  ctx.font = '500 20px "Jost", sans-serif';
+  spaced(ctx, 'A NOMBRE DE', x, 604, 5);
   ctx.fillStyle = '#FFFFFF';
-  fitText(ctx, r.buyer.fullName, STUB_X - x - 90, 700, 40);
-  ctx.fillText(r.buyer.fullName, x, 660);
+  fitText(ctx, r.buyer.fullName, right - x, 700, 44, SERIF);
+  ctx.textAlign = 'left';
+  ctx.fillText(r.buyer.fullName, x, 656);
 
   // ---- Talón ----
   const cx = STUB_X + (TICKET_W - STUB_X) / 2;
-  const qrSize = 330;
+  const qrSize = 300;
   const qrY = 70;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = '#DDD7CB';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(cx - qrSize / 2 - 18, qrY - 18, qrSize + 36, qrSize + 36, 24);
+  ctx.fill();
+  ctx.stroke();
   const payload = r.approvalStatus === 'approved' ? qrPayload(r, seat.id) : null;
   if (payload) {
-    const url = await QRCode.toDataURL(payload, { width: 660, margin: 1, errorCorrectionLevel: 'M', color: { dark: '#111111', light: '#FFFFFF' } });
+    const url = await QRCode.toDataURL(payload, { width: 600, margin: 0, errorCorrectionLevel: 'M', color: { dark: '#0B100D', light: '#FFFFFF' } });
     ctx.drawImage(await loadImage(url), cx - qrSize / 2, qrY, qrSize, qrSize);
   } else {
     const rejected = r.approvalStatus === 'rejected';
     ctx.fillStyle = rejected ? '#FEE2E2' : '#FEF3C7';
     ctx.beginPath();
-    ctx.roundRect(cx - qrSize / 2, qrY, qrSize, qrSize, 24);
+    ctx.roundRect(cx - qrSize / 2, qrY, qrSize, qrSize, 16);
     ctx.fill();
     ctx.textAlign = 'center';
     ctx.fillStyle = rejected ? '#991B1B' : '#92400E';
-    ctx.font = '800 38px "Jost", sans-serif';
+    ctx.font = '700 36px "Jost", sans-serif';
     ctx.fillText(rejected ? 'NO VÁLIDA' : 'EN REVISIÓN', cx, qrY + qrSize / 2 - 6);
-    ctx.font = '500 24px "Jost", sans-serif';
-    ctx.fillText(rejected ? 'Pago no verificado' : 'El QR aparece al aprobar', cx, qrY + qrSize / 2 + 34);
+    ctx.font = '500 22px "Jost", sans-serif';
+    ctx.fillText(rejected ? 'Pago no verificado' : 'El QR aparece al aprobar', cx, qrY + qrSize / 2 + 32);
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#6B7280';
-  ctx.font = '600 24px "Jost", sans-serif';
-  ctx.fillStyle = '#6B7280';
+  ctx.fillStyle = CAFE;
+  ctx.font = '600 22px "Jost", sans-serif';
   if (ASIENTOS_NUMERADOS) {
-    ctx.fillText('FILA', cx - 90, 470);
-    ctx.fillText('ASIENTO', cx + 90, 470);
+    spaced(ctx, 'FILA', cx - 90, 470, 5, 'center');
+    spaced(ctx, 'ASIENTO', cx + 90, 470, 5, 'center');
     ctx.fillStyle = COLORES.fondoOscuro;
-    ctx.font = '800 76px "Jost", sans-serif';
-    ctx.fillText(seat.fila, cx - 90, 550);
-    ctx.fillText(String(seat.num), cx + 90, 550);
+    ctx.font = `700 84px ${SERIF}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(seat.fila, cx - 90, 560);
+    ctx.fillText(String(seat.num), cx + 90, 560);
   } else {
-    ctx.fillText('ENTRADA N°', cx, 470);
+    spaced(ctx, 'ENTRADA N°', cx, 470, 6, 'center');
     ctx.fillStyle = COLORES.fondoOscuro;
-    ctx.font = '800 76px "Jost", sans-serif';
-    ctx.fillText(String(seat.num), cx, 550);
+    ctx.font = `700 96px ${SERIF}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(seat.num), cx, 566);
   }
 
-  ctx.fillStyle = '#9CA3AF';
+  ctx.fillStyle = CAFE;
   ctx.font = '600 24px "Jost", sans-serif';
-  ctx.fillText(r.locatorCode, cx, 640);
+  ctx.textAlign = 'center';
+  ctx.fillText(r.locatorCode, cx, 650);
   return c;
 }
 

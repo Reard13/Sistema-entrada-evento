@@ -7,10 +7,22 @@
   --fondo-oscuro: #0b100d;
   --suave: #edebe6;
   --vip: #76584c;
+  /* Tonos de apoyo del tema */
+  --oro: #f1e39a;
+  --crema: #f3f0ea;
+  --linea: #ddd7cb;
+  --tenue: #b9b4a8;
+  --cafe: #76584c;
 }
 
 @theme inline {
   --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --color-oro: var(--oro);
+  --color-crema: var(--crema);
+  --color-linea: var(--linea);
+  --color-tenue: var(--tenue);
+  --color-cafe: var(--cafe);
   --color-marca: var(--marca);
   --color-marca-oscuro: var(--marca-oscuro);
   --color-oscuro: var(--fondo-oscuro);
@@ -20,6 +32,11 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Cifras de Playfair a la altura de las mayúsculas (precios, cuenta regresiva) */
+.font-display {
+  font-variant-numeric: lining-nums;
 }
 
 body {
@@ -51,12 +68,12 @@ body {
     var(--fondo-oscuro);
 }
 
-/* Portada con foto: capa oscura del color de la marca para que el texto se lea */
+/* Portada con foto: viñeta oscura para que el logo y el texto se lean */
 .hero-foto {
   background:
-    linear-gradient(180deg,
-      color-mix(in oklab, var(--fondo-oscuro) 78%, transparent) 0%,
-      color-mix(in oklab, var(--fondo-oscuro) 86%, transparent) 55%,
+    radial-gradient(120% 80% at 50% 30%,
+      color-mix(in oklab, var(--fondo-oscuro) 55%, transparent) 0%,
+      color-mix(in oklab, var(--fondo-oscuro) 88%, transparent) 60%,
       var(--fondo-oscuro) 100%),
     var(--hero-foto) center 35% / cover no-repeat,
     var(--fondo-oscuro);

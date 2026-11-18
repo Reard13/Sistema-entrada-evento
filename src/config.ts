@@ -12,6 +12,8 @@ export const EVENTO = {
   descripcion:
     'Las mejores canciones navideñas internacionales, interpretadas por el elenco de Sanremo Sin Fronteras.',
   organizador: 'Sanremo Sin Fronteras',
+  // Titular de la sección «El concierto»
+  titularConcierto: 'Una noche para cantar la Navidad juntos',
 
   // Fecha y hora de inicio con la zona horaria de Venezuela (-04:00)
   fechaISO: '2026-12-11T19:30:00-04:00',
@@ -23,6 +25,10 @@ export const EVENTO = {
   ciudad: 'Caracas',
   // Enlace de Google Maps (opcional)
   mapaUrl: 'https://maps.app.goo.gl/eKA95Eiten6ZQraE6',
+
+  // Logo del organizador (archivos en public/, fondo transparente). Vacío = no se muestra.
+  logoMarca: '/marca.png', // con micrófono: portada y pie de página
+  logoMarcaTexto: '/marca-texto.png', // solo el nombre: barra superior
 
   // Logo con el título del evento (archivo en public/). Vacío = el nombre escrito en texto.
   logoTitulo: '/titulo.svg',
