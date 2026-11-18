@@ -1,4 +1,4 @@
-export type PackageType = 'General' | 'VIP';
+export type PackageType = 'General';
 
 export interface SelectedSeat {
   id: string; // ej. "B-7"

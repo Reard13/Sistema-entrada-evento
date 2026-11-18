@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { X, LogOut, Check, Ban, MessageCircle, RotateCcw, Trash2, Search, Lock, ScanLine, Wallet } from 'lucide-react';
 import { CheckInMap, ReservationData } from '../types';
-import { EVENTO } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO } from '../config';
+import { etiquetaEntrada } from '../constants';
 import { formatBs } from '../utils/exchangeRate';
 import { clearSession, login, readSession, SESSION_EXPIRED_EVENT, staffFetch, StaffSession } from '../utils/adminSession';
 import { connectRealtime, INGRESOS_EVENT, RESERVAS_EVENT } from '../utils/api';
@@ -35,7 +36,7 @@ const ticketMessage = (r: ReservationData) => {
   return (
     `¡Hola, ${r.buyer.fullName.split(' ')[0]}! Tu pago fue verificado. ✅\n\n` +
     `${una ? 'Tu entrada' : 'Tus entradas'} para *${EVENTO.nombre}*:\n` +
-    `${una ? 'Asiento' : 'Asientos'}: *${r.seats.map((s) => `${s.id} (${s.pkg})`).join(', ')}*\n` +
+    `${ASIENTOS_NUMERADOS ? (una ? 'Asiento' : 'Asientos') : una ? 'Entrada' : 'Entradas'}: *${r.seats.map((s) => etiquetaEntrada(s)).join(', ')}*\n` +
     `${EVENTO.fechaTexto} · ${EVENTO.horaTexto} · ${EVENTO.lugar}\n\n` +
     `Abre ${una ? 'tu entrada' : 'tus entradas'} con el código QR aquí:\n${link}\n\n` +
     `Localizador: ${r.locatorCode}`
@@ -128,8 +129,6 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return {
       pending: reservations.filter((r) => r.approvalStatus === 'pending_approval').length,
       sold: seats.length,
-      general: seats.filter((s) => s.pkg === 'General').length,
-      vip: seats.filter((s) => s.pkg === 'VIP').length,
       usd: approved.reduce((n, r) => n + r.totalUsd, 0),
       bs: approved.reduce((n, r) => n + r.totalBs, 0),
       entered: Object.keys(checkIns).length,
@@ -142,7 +141,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       (r) =>
         (filter === 'all' || r.approvalStatus === filter) &&
         (!q ||
-          [r.locatorCode, r.buyer.fullName, r.buyer.phone, r.paymentReport.referenceNumber, ...r.seats.map((s) => s.id)].some((v) =>
+          [r.locatorCode, r.buyer.fullName, r.buyer.phone, r.paymentReport.referenceNumber, ...r.seats.flatMap((s) => [s.id, etiquetaEntrada(s)])].some((v) =>
             v.toLowerCase().includes(q)
           ))
     );
@@ -227,7 +226,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {(
               [
-                ['Entradas vendidas', String(stats.sold), `General ${stats.general} · VIP ${stats.vip}`],
+                ['Entradas vendidas', String(stats.sold), 'aprobadas'],
                 ['Por revisar', String(stats.pending), stats.pending === 1 ? 'pago' : 'pagos'],
                 ['Recaudado', `$${stats.usd.toFixed(2)}`, `Bs. ${formatBs(stats.bs)}`],
                 ['Ingresaron', String(stats.entered), `de ${stats.sold}`],
@@ -262,7 +261,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Nombre, teléfono, asiento, referencia…"
+                placeholder={`Nombre, teléfono, ${ASIENTOS_NUMERADOS ? 'asiento' : 'N° de entrada'}, referencia…`}
                 className="w-full rounded-full border border-gray-300 bg-white pl-9 pr-4 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-marca/50"
               />
             </label>
@@ -286,8 +285,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   </div>
                   <div className="mt-3 grid gap-2 sm:grid-cols-3 text-sm">
                     <p>
-                      <span className="block text-xs text-gray-500">Asientos</span>
-                      <span className="font-semibold">{r.seats.map((s) => `${s.id} (${s.pkg})`).join(', ')}</span>
+                      <span className="block text-xs text-gray-500">{ASIENTOS_NUMERADOS ? 'Asientos' : 'Entradas'}</span>
+                      <span className="font-semibold">{r.seats.map((s) => etiquetaEntrada(s)).join(', ')}</span>
                     </p>
                     <p>
                       <span className="block text-xs text-gray-500">Pago Móvil</span>

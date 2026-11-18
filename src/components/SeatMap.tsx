@@ -43,8 +43,6 @@ export const TheaterSeat = React.memo<{ num?: number; state: SeatState }>(({ num
 
 export const SeatMap: React.FC<SeatMapProps> = ({
   selectedSeats,
-  activePackage,
-  onChangePackage,
   onToggleSeat,
   onProceedToCheckout,
   onBackToHome,
@@ -64,21 +62,6 @@ export const SeatMap: React.FC<SeatMapProps> = ({
         </button>
         <div className="text-center space-y-3">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-oscuro">Elige tu asiento</h1>
-          {/* Tipo de entrada que se asigna a los asientos que elija */}
-          <div role="radiogroup" aria-label="Tipo de entrada" className="inline-flex rounded-full bg-white p-1 shadow-sm">
-            {(['General', 'VIP'] as PackageType[]).map((pkg) => (
-              <button
-                key={pkg}
-                type="button"
-                role="radio"
-                aria-checked={activePackage === pkg}
-                onClick={() => onChangePackage(pkg)}
-                className={`min-h-[40px] px-5 rounded-full text-sm font-bold cursor-pointer ${activePackage === pkg ? (pkg === 'VIP' ? 'bg-vip text-[#2B1D05]' : 'bg-marca text-white') : 'text-gray-600'}`}
-              >
-                {pkg}
-              </button>
-            ))}
-          </div>
           <div className="flex justify-center gap-5 text-sm font-medium text-gray-700">
             {(
               [

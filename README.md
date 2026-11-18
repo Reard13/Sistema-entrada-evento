@@ -23,6 +23,7 @@ Desarrollado por **Alejandro Reina**.
 ## Adaptarlo a un evento nuevo
 
 1. Cambia **`src/config.ts`**: nombre, fecha, lugar, precios, Pago Móvil, WhatsApp, colores, mapa de asientos y términos.
+   Si el lugar no tiene asientos numerados, pon `ASIENTOS_NUMERADOS = false` y el aforo en `CAPACIDAD`: el comprador elige cuántas entradas quiere y cada una sale numerada (N° 1, N° 2…).
 2. Cambia las imágenes de `public/icons/` (ícono y vista previa del enlace, 1200×630).
 3. Crea las claves en `.env.local` (local) o en Render (publicado). Mira `.env.example`.
 

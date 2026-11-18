@@ -2,11 +2,11 @@
 
 /* Colores de la marca: los valores reales se toman de src/config.ts al cargar la página (ver main.tsx) */
 :root {
-  --marca: #6d28d9;
-  --marca-oscuro: #4c1d95;
-  --fondo-oscuro: #1e1b4b;
-  --suave: #f5f3ff;
-  --vip: #c5a059;
+  --marca: #a60b08;
+  --marca-oscuro: #5e0001;
+  --fondo-oscuro: #0b100d;
+  --suave: #edebe6;
+  --vip: #76584c;
 }
 
 @theme inline {
@@ -48,6 +48,17 @@ body {
   background:
     radial-gradient(60% 50% at 80% 10%, color-mix(in oklab, var(--marca) 55%, transparent), transparent 70%),
     radial-gradient(50% 40% at 10% 90%, color-mix(in oklab, var(--marca) 35%, transparent), transparent 70%),
+    var(--fondo-oscuro);
+}
+
+/* Portada con foto: capa oscura del color de la marca para que el texto se lea */
+.hero-foto {
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--fondo-oscuro) 78%, transparent) 0%,
+      color-mix(in oklab, var(--fondo-oscuro) 86%, transparent) 55%,
+      var(--fondo-oscuro) 100%),
+    var(--hero-foto) center 35% / cover no-repeat,
     var(--fondo-oscuro);
 }
 

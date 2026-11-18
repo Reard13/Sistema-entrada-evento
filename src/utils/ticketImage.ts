@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { COLORES, EVENTO, PREFIJO_LOCALIZADOR } from '../config';
+import { ASIENTOS_NUMERADOS, COLORES, EVENTO, PREFIJO_LOCALIZADOR } from '../config';
 import { ReservationData, SelectedSeat } from '../types';
 import { canvasToPngBlob } from './saveImage';
 
@@ -37,7 +37,6 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   c.width = TICKET_W;
   c.height = TICKET_H;
   const ctx = c.getContext('2d')!;
-  const isVip = seat.pkg === 'VIP';
 
   // Forma con esquinas redondeadas y muescas en la línea de corte
   ctx.save();
@@ -64,7 +63,7 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   // Talón
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(STUB_X, 0, TICKET_W - STUB_X, TICKET_H);
-  ctx.fillStyle = isVip ? COLORES.vip : COLORES.marca;
+  ctx.fillStyle = COLORES.marca;
   ctx.fillRect(STUB_X, 0, TICKET_W - STUB_X, 18);
   ctx.restore();
 
@@ -101,14 +100,14 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.fillText(EVENTO.edicion, x, 280);
 
   // Tipo de entrada
-  const tipo = isVip ? 'VIP' : 'GENERAL';
+  const tipo = 'GENERAL';
   ctx.font = '800 34px "Jost", sans-serif';
   const tw = ctx.measureText(tipo).width + 64;
-  ctx.fillStyle = isVip ? COLORES.vip : 'rgba(255,255,255,0.18)';
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
   ctx.beginPath();
   ctx.roundRect(x, 330, tw, 64, 32);
   ctx.fill();
-  ctx.fillStyle = isVip ? '#2B1D05' : '#FFFFFF';
+  ctx.fillStyle = '#FFFFFF';
   ctx.fillText(tipo, x + 32, 375);
 
   // Fecha, hora y lugar
@@ -162,12 +161,20 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.textAlign = 'center';
   ctx.fillStyle = '#6B7280';
   ctx.font = '600 24px "Jost", sans-serif';
-  ctx.fillText('FILA', cx - 90, 470);
-  ctx.fillText('ASIENTO', cx + 90, 470);
-  ctx.fillStyle = COLORES.fondoOscuro;
-  ctx.font = '800 76px "Jost", sans-serif';
-  ctx.fillText(seat.fila, cx - 90, 550);
-  ctx.fillText(String(seat.num), cx + 90, 550);
+  ctx.fillStyle = '#6B7280';
+  if (ASIENTOS_NUMERADOS) {
+    ctx.fillText('FILA', cx - 90, 470);
+    ctx.fillText('ASIENTO', cx + 90, 470);
+    ctx.fillStyle = COLORES.fondoOscuro;
+    ctx.font = '800 76px "Jost", sans-serif';
+    ctx.fillText(seat.fila, cx - 90, 550);
+    ctx.fillText(String(seat.num), cx + 90, 550);
+  } else {
+    ctx.fillText('ENTRADA N°', cx, 470);
+    ctx.fillStyle = COLORES.fondoOscuro;
+    ctx.font = '800 76px "Jost", sans-serif';
+    ctx.fillText(String(seat.num), cx, 550);
+  }
 
   ctx.fillStyle = '#9CA3AF';
   ctx.font = '600 24px "Jost", sans-serif';

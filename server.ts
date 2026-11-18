@@ -14,8 +14,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { ENTRADAS, PREFIJO_LOCALIZADOR, TASA_BCV_RESPALDO } from './src/config';
-import { ASIENTOS_VALIDOS } from './src/constants';
+import { ASIENTOS_NUMERADOS, ENTRADAS, MAX_POR_COMPRA, PREFIJO_LOCALIZADOR, TASA_BCV_RESPALDO } from './src/config';
+import { ASIENTOS_VALIDOS, entradasLibres } from './src/constants';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -173,7 +173,7 @@ async function getBcvRate(): Promise<number | null> {
 type Reserva = {
   locatorCode: string;
   createdAt: number;
-  seats: { id: string; fila: string; num: number; pkg: 'General' | 'VIP' }[];
+  seats: { id: string; fila: string; num: number; pkg: 'General' }[];
   buyer: { fullName: string; phone: string };
   paymentReport: { referenceNumber: string; bank: string; payerPhone: string; reportedAt: number };
   approvalStatus: 'pending_approval' | 'approved' | 'rejected';
@@ -277,10 +277,26 @@ async function startServer() {
   // Nueva compra: el servidor calcula el precio, genera el localizador y verifica que los asientos sigan libres
   app.post('/api/reservations', async (req, res) => {
     const b = req.body || {};
+    // Sin asientos numerados el servidor asigna las primeras entradas libres (lo que mande el navegador solo cuenta como cantidad)
+    if (!ASIENTOS_NUMERADOS) {
+      const cantidad = Array.isArray(b.seats) ? b.seats.length : 0;
+      if (cantidad < 1 || cantidad > MAX_POR_COMPRA) {
+        return res.status(400).json({ success: false, message: `Puedes comprar de 1 a ${MAX_POR_COMPRA} entradas por compra.` });
+      }
+      const libres = entradasLibres(takenSeats(), cantidad);
+      if (libres.length < cantidad) {
+        return res.status(409).json({
+          success: false,
+          code: 'sold_out',
+          message: libres.length ? `Solo quedan ${libres.length} entradas. Ajusta la cantidad.` : 'Las entradas se agotaron.',
+        });
+      }
+      b.seats = libres;
+    }
     const seatIds: string[] = Array.isArray(b.seats) ? b.seats.map((s: any) => String(s?.id || '').toUpperCase()) : [];
     const seats: Reserva['seats'] = (Array.isArray(b.seats) ? b.seats : []).map((s: any, i: number) => {
       const [fila, num] = seatIds[i].split('-');
-      return { id: seatIds[i], fila, num: Number(num), pkg: s?.pkg === 'VIP' ? 'VIP' : 'General' } as Reserva['seats'][number];
+      return { id: seatIds[i], fila, num: Number(num), pkg: 'General' } as Reserva['seats'][number];
     });
     const fullName = clip(b.buyer?.fullName, 80);
     const phone = clip(b.buyer?.phone, 20);

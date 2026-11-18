@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy }) => (
-  <header className="sticky top-0 z-50 bg-oscuro/90 backdrop-blur-md text-white border-b border-white/10">
+  <header className="sticky top-0 z-50 bg-oscuro text-white border-b border-white/10">
     <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
       <button type="button" onClick={onGoHome} className="min-w-0 text-left cursor-pointer">
         {/* Si el cliente tiene logo, se puede poner aquí: <img src="/logo.png" className="h-9" /> */}

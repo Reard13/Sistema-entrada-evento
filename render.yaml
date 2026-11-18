@@ -2,7 +2,7 @@
 # Servidor Node con disco persistente en /data para las compras y los ingresos.
 services:
   - type: web
-    name: sistema-entradas # cámbialo por el nombre del evento
+    name: sanremo-sin-fronteras # define la dirección: sanremo-sin-fronteras.onrender.com
     runtime: node
     plan: starter # el plan gratis se duerme y no admite disco persistente
     region: virginia # la región más cercana a Venezuela

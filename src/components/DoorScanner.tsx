@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import jsQR from 'jsqr';
 import { Camera, ImageUp, Keyboard, CheckCircle2, XCircle, Clock, Undo2 } from 'lucide-react';
 import { ReservationData } from '../types';
+import { etiquetaEntrada } from '../constants';
+import { ASIENTOS_NUMERADOS } from '../config';
 import { staffFetch } from '../utils/adminSession';
 
 type ScanStatus = 'valid' | 'used' | 'pending' | 'rejected' | 'invalid' | 'not_found' | 'choose_seat';
@@ -116,7 +118,7 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
 
   const undo = async () => {
     if (!result?.reservation || !result.seatId) return;
-    if (!window.confirm(`¿Anular el ingreso del asiento ${result.seatId}? La entrada podrá escanearse de nuevo.`)) return;
+    if (!window.confirm(`¿Anular el ingreso ${seat ? `de ${etiquetaEntrada(seat)}` : ''}? La entrada podrá escanearse de nuevo.`)) return;
     const res = await staffFetch('/api/checkin/undo', {
       method: 'POST',
       body: JSON.stringify({ locator: result.reservation.locatorCode, seatId: result.seatId }),
@@ -135,7 +137,7 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
     rejected: { bg: 'bg-red-600', icon: <XCircle className="w-14 h-14" />, title: 'PAGO RECHAZADO' },
     invalid: { bg: 'bg-red-600', icon: <XCircle className="w-14 h-14" />, title: 'QR NO VÁLIDO' },
     not_found: { bg: 'bg-red-600', icon: <XCircle className="w-14 h-14" />, title: 'NO ENCONTRADA' },
-    choose_seat: { bg: 'bg-oscuro', icon: <Keyboard className="w-14 h-14" />, title: 'ELIGE EL ASIENTO' },
+    choose_seat: { bg: 'bg-oscuro', icon: <Keyboard className="w-14 h-14" />, title: ASIENTOS_NUMERADOS ? 'ELIGE EL ASIENTO' : 'ELIGE LA ENTRADA' },
   };
 
   return (
@@ -150,7 +152,7 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
           <h2 className="text-2xl font-extrabold tracking-wide">{view[result.status].title}</h2>
           {seat && (
             <p>
-              <span className="block text-5xl font-extrabold">{seat.id}</span>
+              <span className="block text-5xl font-extrabold">{etiquetaEntrada(seat)}</span>
               <span className="text-sm font-semibold uppercase tracking-wider text-white/85">Entrada {seat.pkg}</span>
             </p>
           )}
@@ -176,7 +178,7 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
                     onClick={() => send({ locator: r.locatorCode, seatId: s.id })}
                     className="rounded-xl bg-white text-oscuro py-2 font-extrabold cursor-pointer disabled:opacity-40"
                   >
-                    {s.id}
+                    {etiquetaEntrada(s)}
                     <span className="block text-[11px] font-semibold">{at ? `Entró ${hora(at)}` : s.pkg}</span>
                   </button>
                 );

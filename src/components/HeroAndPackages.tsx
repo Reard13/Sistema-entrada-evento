@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Clock, MapPin, Check, ArrowRight } from 'lucide-react';
-import { EVENTO, ENTRADAS } from '../config';
+import { Calendar, Clock, MapPin, Check, ArrowRight, Minus, Plus } from 'lucide-react';
+import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, MAX_POR_COMPRA } from '../config';
 import { PackageType } from '../types';
 import { formatBs } from '../utils/exchangeRate';
 
 interface Props {
   bcvRate: number;
   onSelectPackage: (pkg: PackageType) => void;
+  // Sin asientos numerados: comprar una cantidad de entradas
+  onBuyQuantity: (cantidad: number) => void;
+  disponibles: number;
 }
 
 function useCountdown(target: number) {
@@ -27,16 +30,29 @@ function useCountdown(target: number) {
   };
 }
 
-export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage }) => {
+export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onBuyQuantity, disponibles }) => {
+  const [cantidad, setCantidad] = useState(1);
+  const maximo = Math.max(0, Math.min(MAX_POR_COMPRA, disponibles));
   const { done, parts } = useCountdown(new Date(EVENTO.fechaISO).getTime());
 
   return (
     <>
       {/* ---------- Portada ---------- */}
-      <section className="hero-bg text-white">
+      <section
+        className={`${EVENTO.fotoPortada ? 'hero-foto' : 'hero-bg'} text-white`}
+        style={EVENTO.fotoPortada ? ({ '--hero-foto': `url(${EVENTO.fotoPortada})` } as React.CSSProperties) : undefined}
+      >
         <div className="max-w-6xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/70">{EVENTO.organizador} presenta</p>
-          <h1 className="mt-4 text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
+          {EVENTO.logoTitulo ? (
+            <h1 className="mx-auto max-w-4xl">
+              <img src={EVENTO.logoTitulo} alt={EVENTO.nombre} className="block w-full h-auto drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)]" />
+            </h1>
+          ) : (
+            <>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/70">{EVENTO.organizador} presenta</p>
+              <h1 className="mt-4 text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
+            </>
+          )}
           <p className="mt-2 text-xl sm:text-2xl font-medium text-white/85">{EVENTO.edicion}</p>
           <p className="mt-5 max-w-xl mx-auto text-base sm:text-lg text-white/80 text-pretty">{EVENTO.lema}</p>
 
@@ -93,19 +109,18 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage }) =
       {/* ---------- Entradas y precios ---------- */}
       <section id="entradas" className="scroll-mt-20 max-w-5xl mx-auto px-4 py-16">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-oscuro text-center">Entradas</h2>
-        <p className="mt-2 text-center text-gray-600">Elige el tipo de entrada y después tus asientos en el mapa.</p>
+        <p className="mt-2 text-center text-gray-600">{ASIENTOS_NUMERADOS ? 'Elige tus asientos en el mapa.' : 'Elige cuántas entradas quieres y paga por Pago Móvil.'}</p>
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <div className="mt-10 grid gap-5 max-w-md mx-auto">
           {(Object.keys(ENTRADAS) as PackageType[]).map((pkg) => {
             const e = ENTRADAS[pkg];
-            const vip = pkg === 'VIP';
             return (
               <article
                 key={pkg}
-                className={`relative flex flex-col rounded-3xl border p-6 sm:p-8 ${vip ? 'border-vip bg-[color-mix(in_oklab,var(--vip)_8%,white)]' : 'border-gray-200 bg-white'}`}
+                className={`relative flex flex-col rounded-3xl border p-6 sm:p-8 border-gray-200 bg-white`}
               >
-                <span className={`self-start rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${vip ? 'bg-vip text-[#2B1D05]' : 'bg-suave text-marca-oscuro'}`}>
-                  {pkg}
+                <span className={`self-start rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider bg-suave text-marca-oscuro`}>
+                  Entrada {pkg}
                 </span>
                 <p className="mt-5 flex items-baseline gap-2">
                   <span className="text-5xl font-extrabold text-oscuro tabular-nums">${e.precio}</span>
@@ -120,14 +135,56 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage }) =
                     </li>
                   ))}
                 </ul>
-                <button
-                  type="button"
-                  onClick={() => onSelectPackage(pkg)}
-                  className="mt-7 w-full min-h-[52px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-bold inline-flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  Elegir asientos {pkg}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {ASIENTOS_NUMERADOS ? (
+                  <button
+                    type="button"
+                    onClick={() => onSelectPackage(pkg)}
+                    className="mt-7 w-full min-h-[52px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-bold inline-flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    Elegir asientos
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : maximo === 0 ? (
+                  <p className="mt-7 w-full min-h-[52px] rounded-full bg-gray-100 text-gray-500 font-bold inline-flex items-center justify-center">Agotado</p>
+                ) : (
+                  <>
+                    <div className="mt-7 flex items-center justify-between gap-3">
+                      <span className="text-sm font-bold text-oscuro">Cantidad</span>
+                      <div className="inline-flex items-center gap-1 rounded-full border border-gray-200 p-1">
+                        <button
+                          type="button"
+                          aria-label="Una entrada menos"
+                          disabled={cantidad <= 1}
+                          onClick={() => setCantidad((n) => Math.max(1, n - 1))}
+                          className="w-10 h-10 rounded-full bg-suave text-marca-oscuro grid place-items-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-10 text-center text-lg font-extrabold text-oscuro tabular-nums" aria-live="polite">
+                          {Math.min(cantidad, maximo)}
+                        </span>
+                        <button
+                          type="button"
+                          aria-label="Una entrada más"
+                          disabled={cantidad >= maximo}
+                          onClick={() => setCantidad((n) => Math.min(maximo, n + 1))}
+                          className="w-10 h-10 rounded-full bg-suave text-marca-oscuro grid place-items-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    {disponibles <= 20 && <p className="mt-2 text-right text-xs font-semibold text-marca">Quedan {disponibles} entradas</p>}
+                    <button
+                      type="button"
+                      onClick={() => onBuyQuantity(Math.min(cantidad, maximo))}
+                      className="mt-4 w-full min-h-[52px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-bold inline-flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      Comprar · ${e.precio * Math.min(cantidad, maximo)}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
               </article>
             );
           })}
