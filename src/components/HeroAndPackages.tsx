@@ -223,12 +223,37 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             </p>
           </div>
 
-          <div className="relative isolate w-full flex flex-wrap bg-crema text-[#1A1F1B] rounded-3xl overflow-hidden">
+          <div className="relative isolate w-full flex flex-col md:flex-row text-[#1A1F1B] rounded-3xl overflow-hidden">
             {/* Lado del precio */}
-            <div ref={bodyRef} className="relative z-10 bg-crema flex-[999_1_380px] min-w-0 p-6 sm:p-10 flex flex-col gap-5 border-b-2 sm:border-b-0 sm:border-r-2 border-dashed border-[#CFCABF]">
-              <span className="self-start px-3.5 py-1.5 rounded-full bg-[#E6E0D3] text-marca-oscuro text-xs sm:text-[13px] font-semibold tracking-[0.18em] uppercase">
-                Entrada general
-              </span>
+            <div ref={bodyRef} className="relative z-10 bg-crema flex-1 min-w-0 p-6 sm:p-10 flex flex-col gap-5 border-b-2 md:border-b-0 md:border-r-2 border-dashed border-[#CFCABF]">
+              {/* Muescas del ticket en los extremos de la línea perforada (del color del fondo de la sección) */}
+              <span aria-hidden="true" className="absolute w-8 h-8 rounded-full bg-oscuro -left-4 -bottom-4 md:left-auto md:-right-4 md:-top-4 md:bottom-auto" />
+              <span aria-hidden="true" className="absolute w-8 h-8 rounded-full bg-oscuro -right-4 -bottom-4" />
+
+              {/* Encabezado del ticket */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#DDD7CB]">
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Tu entrada · {EVENTO.edicion}</span>
+                  <span className="font-display font-bold text-xl sm:text-2xl leading-tight text-oscuro text-balance">{EVENTO.nombre}</span>
+                </div>
+                <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#E6E0D3] text-marca-oscuro text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
+                  Admisión general
+                </span>
+              </div>
+              <dl className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <dt className="text-[11px] tracking-[0.18em] uppercase text-cafe">Fecha</dt>
+                  <dd className="font-semibold">{EVENTO.fechaCorta}</dd>
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0 pl-3 border-l border-[#DDD7CB]">
+                  <dt className="text-[11px] tracking-[0.18em] uppercase text-cafe">Hora</dt>
+                  <dd className="font-semibold">{EVENTO.horaTexto}</dd>
+                </div>
+                <div className="col-span-2 sm:col-span-1 flex flex-col gap-0.5 min-w-0 pt-3 sm:pt-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-[#DDD7CB]">
+                  <dt className="text-[11px] tracking-[0.18em] uppercase text-cafe">Lugar</dt>
+                  <dd className="font-semibold leading-snug">{EVENTO.lugar}</dd>
+                </div>
+              </dl>
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="font-display font-bold text-6xl sm:text-7xl leading-none text-oscuro">${precio}</span>
                 <span className="text-base sm:text-lg font-medium text-cafe">≈ Bs. {formatBs(precio * bcvRate)}</span>
@@ -248,7 +273,8 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             </div>
 
             {/* Lado de la compra */}
-            <div ref={stubRef} className="relative z-0 will-change-transform flex-[1_1_300px] min-w-0 p-6 sm:p-10 flex flex-col justify-center gap-5 bg-white">
+            <div ref={stubRef} className="relative z-0 will-change-transform md:w-[340px] md:shrink-0 min-w-0 p-6 sm:p-10 flex flex-col justify-center gap-5 bg-white">
+              <span className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Talón · tu compra</span>
               {ASIENTOS_NUMERADOS ? (
                 <button
                   type="button"
@@ -306,6 +332,8 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                   </button>
                 </>
               )}
+              {/* Código de barras decorativo del talón */}
+              <div aria-hidden="true" className="mt-1 h-10 rounded-sm opacity-80 [background:repeating-linear-gradient(90deg,#0b100d_0_2px,transparent_2px_4px,#0b100d_4px_5px,transparent_5px_9px,#0b100d_9px_12px,transparent_12px_14px)]" />
             </div>
           </div>
           <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en bolívares según la tasa BCV del día ({formatBs(bcvRate)} Bs/$).</p>
