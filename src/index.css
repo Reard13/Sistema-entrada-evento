@@ -7,16 +7,22 @@
   --fondo-oscuro: #0b100d;
   --suave: #edebe6;
   --vip: #76584c;
+  /* Tonos de apoyo del tema */
+  --oro: #f1e39a;
+  --crema: #f3f0ea;
+  --linea: #ddd7cb;
+  --tenue: #b9b4a8;
+  --cafe: #76584c;
 }
 
 @theme inline {
   --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Playfair Display", Georgia, serif;
-  --color-oro: #f1e39a;
-  --color-crema: #f3f0ea;
-  --color-linea: #ddd7cb;
-  --color-tenue: #b9b4a8;
-  --color-cafe: #76584c;
+  --color-oro: var(--oro);
+  --color-crema: var(--crema);
+  --color-linea: var(--linea);
+  --color-tenue: var(--tenue);
+  --color-cafe: var(--cafe);
   --color-marca: var(--marca);
   --color-marca-oscuro: var(--marca-oscuro);
   --color-oscuro: var(--fondo-oscuro);
