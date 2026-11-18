@@ -5,7 +5,7 @@ import { TermsModal } from './TermsModal';
 
 export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) => {
   const [termsOpen, setTermsOpen] = useState(false);
-  // Acceso oculto al panel del personal: 5 toques seguidos sobre «Desarrollado por…» al final del pie
+  // Acceso oculto al panel del personal: 5 toques seguidos sobre el logo del pie
   const taps = useRef<number[]>([]);
   const secretTap = () => {
     const now = Date.now();
@@ -19,20 +19,22 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
     <footer className="bg-oscuro text-crema border-t border-oro/15">
       <div className="max-w-6xl mx-auto px-4 py-12 grid gap-8 sm:grid-cols-2">
         <div>
-          {EVENTO.logoMarca &&
-            (INSTAGRAM_URL ? (
-              <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label={`${EVENTO.organizador} en Instagram`} className="inline-block mb-4 rounded-lg">
-                <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="h-20 w-auto" />
-              </a>
-            ) : (
-              <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="mb-4 h-20 w-auto" />
-            ))}
+          {/* El logo abre el panel del personal con 5 toques (no es un enlace) */}
+          {EVENTO.logoMarca && (
+            <img
+              src={EVENTO.logoMarca}
+              alt={EVENTO.organizador}
+              onClick={secretTap}
+              draggable={false}
+              className="mb-4 block h-20 w-auto select-none cursor-pointer"
+            />
+          )}
           {INSTAGRAM_URL ? (
-            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="font-display font-bold text-xl sm:text-2xl hover:underline underline-offset-4 w-fit">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="block w-fit font-display font-bold text-xl sm:text-2xl hover:underline underline-offset-4">
               {EVENTO.nombre}
             </a>
           ) : (
-            <p className="font-display font-bold text-xl sm:text-2xl">{EVENTO.nombre}</p>
+            <p className="block font-display font-bold text-xl sm:text-2xl">{EVENTO.nombre}</p>
           )}
           <p className="mt-2 text-[15px] leading-relaxed text-tenue">
             {EVENTO.fechaTexto} · {EVENTO.horaTexto}
@@ -68,7 +70,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
             )}
           </span>
           {/* Crédito del desarrollador, pequeño y discreto al final de la página */}
-          <span onClick={secretTap} className="text-[11px] tracking-wide text-[#8F8A7F]/80 select-none">
+          <span className="text-[11px] tracking-wide text-[#8F8A7F]/80">
             Desarrollado por Alejandro Reina
           </span>
         </div>

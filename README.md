@@ -16,7 +16,7 @@ Desarrollado por **Alejandro Reina**.
 - «Consultar Mi Boleto» por localizador o teléfono.
 - Entrada digital con QR, que se libera cuando el organizador aprueba el pago.
 
-**Panel del personal** (5 toques seguidos sobre «Desarrollado por Alejandro Reina» al final del pie de página, o `/?panel`)
+**Panel del personal** (5 toques seguidos sobre el logo del pie de página, o `/?panel`)
 - **Administrador:** contadores (vendidas, por revisar, recaudado, ingresos), aprobar o rechazar pagos, enviar la entrada por WhatsApp, reactivar o borrar rechazadas.
 - **Puerta:** escáner QR con la cámara, subir foto o escribir el localizador. Cada entrada pasa una sola vez. Se puede anular un ingreso hecho por error.
 
