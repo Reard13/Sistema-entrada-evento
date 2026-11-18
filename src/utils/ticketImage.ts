@@ -168,11 +168,21 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   linea(490);
   ctx.fillStyle = TENUE;
   ctx.font = '500 20px "Jost", sans-serif';
-  spaced(ctx, 'A NOMBRE DE', x, 548, 5);
+  spaced(ctx, 'A NOMBRE DE', x, 540, 5);
   ctx.fillStyle = '#FFFFFF';
   fitText(ctx, r.buyer.fullName, right - x, 700, 48, SERIF);
   ctx.textAlign = 'left';
-  ctx.fillText(r.buyer.fullName, x, 606);
+  ctx.fillText(r.buyer.fullName, x, 596);
+
+  // Localizador, justo debajo del nombre
+  ctx.fillStyle = TENUE;
+  ctx.font = '500 20px "Jost", sans-serif';
+  spaced(ctx, 'LOCALIZADOR', x, 652, 5);
+  const lw = ctx.measureText('LOCALIZADOR').width + 5 * 10 + 18;
+  ctx.fillStyle = ORO;
+  ctx.font = '600 28px "Jost", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(r.locatorCode, x + lw, 653);
 
   // ---- Talón ----
   const cx = STUB_X + (TICKET_W - STUB_X) / 2;
@@ -206,26 +216,22 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.fillStyle = CAFE;
   ctx.font = '600 22px "Jost", sans-serif';
   if (ASIENTOS_NUMERADOS) {
-    spaced(ctx, 'FILA', cx - 90, 470, 5, 'center');
-    spaced(ctx, 'ASIENTO', cx + 90, 470, 5, 'center');
+    spaced(ctx, 'FILA', cx - 90, 500, 5, 'center');
+    spaced(ctx, 'ASIENTO', cx + 90, 500, 5, 'center');
     ctx.fillStyle = COLORES.fondoOscuro;
     ctx.font = `700 84px ${SERIF}`;
     ctx.textAlign = 'center';
-    ctx.fillText(seat.fila, cx - 90, 560);
-    ctx.fillText(String(seat.num), cx + 90, 560);
+    ctx.fillText(seat.fila, cx - 90, 600);
+    ctx.fillText(String(seat.num), cx + 90, 600);
   } else {
-    spaced(ctx, 'ENTRADA N°', cx, 470, 6, 'center');
+    spaced(ctx, 'ENTRADA N°', cx, 500, 6, 'center');
     ctx.fillStyle = COLORES.fondoOscuro;
     // Cifras en Jost: las de Playfair en canvas salen «antiguas» (el 3 y el 5 bajan de la línea)
     ctx.font = '700 96px "Jost", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(String(seat.num), cx, 566);
+    ctx.fillText(String(seat.num), cx, 606);
   }
 
-  ctx.fillStyle = CAFE;
-  ctx.font = '600 24px "Jost", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(r.locatorCode, cx, 650);
   return c;
 }
 
