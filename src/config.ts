@@ -24,6 +24,9 @@ export const EVENTO = {
   // Enlace de Google Maps (opcional)
   mapaUrl: 'https://maps.app.goo.gl/eKA95Eiten6ZQraE6',
 
+  // Logo con el título del evento (archivo en public/). Vacío = el nombre escrito en texto.
+  logoTitulo: '/titulo.svg',
+
   // Foto de fondo de la portada (archivo en public/). Vacío = fondo de color.
   fotoPortada: '/portada.webp',
 

@@ -43,8 +43,16 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
         style={EVENTO.fotoPortada ? ({ '--hero-foto': `url(${EVENTO.fotoPortada})` } as React.CSSProperties) : undefined}
       >
         <div className="max-w-6xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/70">{EVENTO.organizador} presenta</p>
-          <h1 className="mt-4 text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
+          {EVENTO.logoTitulo ? (
+            <h1 className="mx-auto max-w-4xl">
+              <img src={EVENTO.logoTitulo} alt={EVENTO.nombre} className="block w-full h-auto drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)]" />
+            </h1>
+          ) : (
+            <>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/70">{EVENTO.organizador} presenta</p>
+              <h1 className="mt-4 text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
+            </>
+          )}
           <p className="mt-2 text-xl sm:text-2xl font-medium text-white/85">{EVENTO.edicion}</p>
           <p className="mt-5 max-w-xl mx-auto text-base sm:text-lg text-white/80 text-pretty">{EVENTO.lema}</p>
 
