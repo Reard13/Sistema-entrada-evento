@@ -45,7 +45,9 @@ export const PREFIJO_LOCALIZADOR = 'SSF';
 
 // WhatsApp que recibe los reportes de pago (código de país sin «+», ej. 584141234567)
 export const WHATSAPP = '584140000000';
-export const INSTAGRAM = ''; // ej. 'mievento' (sin @). Vacío = no se muestra.
+export const INSTAGRAM = 'sanremosinfronteras'; // sin @. Vacío = no se muestra.
+// Los logos y el nombre del organizador llevan a este perfil
+export const INSTAGRAM_URL = INSTAGRAM ? `https://www.instagram.com/${INSTAGRAM}/` : '';
 
 // Colores de la marca (hex). Toda la web toma estos colores.
 export const COLORES = {

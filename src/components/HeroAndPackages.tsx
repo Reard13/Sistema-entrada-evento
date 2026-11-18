@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, Clock, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
-import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, MAX_POR_COMPRA, METODOS_PAGO, TERMINOS } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, INSTAGRAM_URL, MAX_POR_COMPRA, METODOS_PAGO, TERMINOS } from '../config';
 import { PackageType } from '../types';
 import { formatBs } from '../utils/exchangeRate';
 
@@ -124,7 +124,13 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
           {EVENTO.logoMarca && (
             // En el teléfono el logo ya está en la barra superior: aquí solo en pantallas grandes
             <div className="hidden sm:flex flex-col items-center gap-1">
-              <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-36 sm:w-48 h-auto" />
+              {INSTAGRAM_URL ? (
+                <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label={`${EVENTO.organizador} en Instagram`} className="rounded-lg">
+                  <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-36 sm:w-48 h-auto" />
+                </a>
+              ) : (
+                <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-36 sm:w-48 h-auto" />
+              )}
               <Eyebrow className="text-tenue">presenta</Eyebrow>
             </div>
           )}

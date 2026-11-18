@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, Ticket } from 'lucide-react';
-import { EVENTO } from '../config';
+import { EVENTO, INSTAGRAM_URL } from '../config';
 
 interface HeaderProps {
   onGoHome: () => void;
@@ -14,15 +14,22 @@ const logo = EVENTO.logoMarca || EVENTO.logoMarcaTexto;
 export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy }) => (
   <header className="header-vidrio sticky top-0 z-50 text-crema">
     <div className="max-w-6xl mx-auto px-4 h-[72px] sm:h-20 flex items-center justify-between gap-3">
-      <button type="button" onClick={onGoHome} className="min-w-0 text-left cursor-pointer flex items-center gap-3">
-        {logo && <img src={logo} alt={EVENTO.organizador} className="h-14 sm:h-16 w-auto shrink-0" />}
-        <span className={logo ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}>
+      <div className="min-w-0 flex items-center gap-3">
+        {logo &&
+          (INSTAGRAM_URL ? (
+            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label={`${EVENTO.organizador} en Instagram`} className="shrink-0 rounded-lg">
+              <img src={logo} alt={EVENTO.organizador} className="h-14 sm:h-16 w-auto" />
+            </a>
+          ) : (
+            <img src={logo} alt={EVENTO.organizador} className="h-14 sm:h-16 w-auto shrink-0" />
+          ))}
+        <button type="button" onClick={onGoHome} className={`text-left cursor-pointer ${logo ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}`}>
           {!logo && <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>}
           <span className="block text-[11px] sm:text-xs text-white/70 leading-tight">
             {EVENTO.fechaCorta} · {EVENTO.lugar}
           </span>
-        </span>
-      </button>
+        </button>
+      </div>
       <nav className="flex items-center gap-2 shrink-0">
         <button
           type="button"
