@@ -367,7 +367,6 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               ))}
             </ul>
           )}
-          <p className="pt-6 pb-4 text-center text-xs text-gray-400">Desarrollado por Alejandro Reina</p>
         </main>
       )}
     </div>

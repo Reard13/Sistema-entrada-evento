@@ -17,7 +17,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
   };
   return (
     <footer className="bg-oscuro text-crema border-t border-oro/15">
-      <div className="max-w-6xl mx-auto px-4 py-12 grid gap-8 sm:grid-cols-2">
+      <div className="max-w-6xl mx-auto px-4 py-12 flex flex-col items-start gap-8 text-left">
         <div>
           {/* El logo abre el panel del personal con 5 toques (no es un enlace) */}
           {EVENTO.logoMarca && (
@@ -42,7 +42,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
             {EVENTO.lugar}, {EVENTO.ciudad}
           </p>
         </div>
-        <div className="flex flex-col gap-3 sm:items-end text-[15px]">
+        <div className="flex flex-col items-start gap-3 text-[15px]">
           <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-medium text-oro hover:text-white hover:underline">
             <MessageCircle className="w-4 h-4" />
             Escríbenos por WhatsApp
@@ -52,7 +52,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
               <Instagram className="w-4 h-4" />@{INSTAGRAM}
             </a>
           )}
-          <button type="button" onClick={() => setTermsOpen(true)} className="text-left sm:text-right text-tenue hover:text-white hover:underline cursor-pointer">
+          <button type="button" onClick={() => setTermsOpen(true)} className="text-left text-tenue hover:text-white hover:underline cursor-pointer">
             Términos y condiciones
           </button>
         </div>
@@ -68,10 +68,6 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
             ) : (
               EVENTO.organizador
             )}
-          </span>
-          {/* Crédito del desarrollador, pequeño y discreto al final de la página */}
-          <span className="text-[11px] tracking-wide text-[#8F8A7F]/80">
-            Desarrollado por Alejandro Reina
           </span>
         </div>
       </div>

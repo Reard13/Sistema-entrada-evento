@@ -35,7 +35,7 @@ export const TermsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
           {TERMINOS.map((section, i) => (
             <section key={section.titulo} className="space-y-1.5">
               <h3 className="font-bold text-marca-oscuro">{i + 1}. {section.titulo}</h3>
-              <ul className="list-disc pl-5 space-y-1">
+              <ul className="space-y-1.5">
                 {section.puntos.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
