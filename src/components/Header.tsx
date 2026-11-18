@@ -12,7 +12,7 @@ interface HeaderProps {
 const logo = EVENTO.logoMarca || EVENTO.logoMarcaTexto;
 
 export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy }) => (
-  <header className="sticky top-0 z-50 bg-oscuro text-crema border-b border-oro/15">
+  <header className="header-vidrio sticky top-0 z-50 text-crema border-b border-oro/15">
     <div className="max-w-6xl mx-auto px-4 h-[72px] sm:h-20 flex items-center justify-between gap-3">
       <button type="button" onClick={onGoHome} className="min-w-0 text-left cursor-pointer flex items-center gap-3">
         {logo && <img src={logo} alt={EVENTO.organizador} className="h-14 sm:h-16 w-auto shrink-0" />}

@@ -68,6 +68,26 @@ body {
     var(--fondo-oscuro);
 }
 
+/* Barra superior translúcida: deja ver la foto al bajar sin perder legibilidad.
+   Sin soporte de desenfoque, o con «reducir transparencia» activado, vuelve a ser sólida. */
+.header-vidrio {
+  background: var(--fondo-oscuro);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header-vidrio {
+    background: color-mix(in oklab, var(--fondo-oscuro) 88%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .header-vidrio {
+    background: var(--fondo-oscuro);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* Portada con foto: viñeta oscura para que el logo y el texto se lean */
 .hero-foto {
   background:
