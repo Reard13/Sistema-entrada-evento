@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Clock, MapPin, Check, ArrowRight, Minus, Plus } from 'lucide-react';
-import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, MAX_POR_COMPRA, PAGO_MOVIL } from '../config';
+import { Calendar, Clock, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
+import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, MAX_POR_COMPRA, PAGO_MOVIL, TERMINOS } from '../config';
 import { PackageType } from '../types';
 import { formatBs } from '../utils/exchangeRate';
 
@@ -44,11 +44,6 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
   const precio = ENTRADAS.General.precio;
   const general = ENTRADAS.General;
 
-  const datos: { icon: React.ReactNode; label: string; value: string; href?: string }[] = [
-    { icon: <Calendar className="w-7 h-7" strokeWidth={1.6} />, label: 'Fecha', value: `${EVENTO.fechaTexto} de ${new Date(EVENTO.fechaISO).getFullYear()}` },
-    { icon: <Clock className="w-7 h-7" strokeWidth={1.6} />, label: 'Hora', value: EVENTO.horaTexto },
-    { icon: <MapPin className="w-7 h-7" strokeWidth={1.6} />, label: 'Lugar', value: `${EVENTO.lugar}, ${EVENTO.ciudad}`, href: EVENTO.mapaUrl || undefined },
-  ];
 
   const pasos = [
     [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El total aparece en dólares y en bolívares a la tasa BCV del día.'],
@@ -63,9 +58,10 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
         className={`${EVENTO.fotoPortada ? 'hero-foto' : 'hero-bg'} text-crema`}
         style={EVENTO.fotoPortada ? ({ '--hero-foto': `url(${EVENTO.fotoPortada})` } as React.CSSProperties) : undefined}
       >
-        <div className="max-w-5xl mx-auto px-4 pt-14 pb-20 sm:pt-20 sm:pb-24 flex flex-col items-center text-center gap-6 sm:gap-7">
+        <div className="max-w-5xl mx-auto px-4 pt-8 pb-12 sm:pt-20 sm:pb-24 flex flex-col items-center text-center gap-5 sm:gap-7">
           {EVENTO.logoMarca && (
-            <div className="flex flex-col items-center gap-1">
+            // En el teléfono el logo ya está en la barra superior: aquí solo en pantallas grandes
+            <div className="hidden sm:flex flex-col items-center gap-1">
               <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-36 sm:w-48 h-auto" />
               <Eyebrow className="text-tenue">presenta</Eyebrow>
             </div>
@@ -79,19 +75,38 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
           )}
 
-          <p className="max-w-2xl font-display italic font-medium text-lg sm:text-2xl leading-relaxed text-crema/90 text-pretty">{EVENTO.descripcion}</p>
+          <p className="max-w-2xl font-display italic font-medium text-lg sm:text-2xl leading-relaxed text-crema/90 text-pretty">{EVENTO.lema}</p>
 
-          {/* Fecha, hora y lugar */}
-          <div className="w-full sm:w-auto grid grid-cols-2 sm:flex sm:flex-wrap justify-center border-y border-oro/25">
-            <div className="px-3 sm:px-8 py-4 flex flex-col gap-1 text-center">
+          {/* Fecha, hora y lugar — teléfono: dos líneas compactas */}
+          <div className="sm:hidden flex flex-col items-center gap-1.5 text-[15px] font-medium">
+            <span className="inline-flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-oro" aria-hidden="true" />
+              {EVENTO.fechaTexto} · {EVENTO.horaTexto}
+            </span>
+            {EVENTO.mapaUrl ? (
+              <a href={EVENTO.mapaUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-oro underline underline-offset-4">
+                <MapPin className="w-4 h-4" aria-hidden="true" />
+                {EVENTO.lugar}
+              </a>
+            ) : (
+              <span className="inline-flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-oro" aria-hidden="true" />
+                {EVENTO.lugar}
+              </span>
+            )}
+          </div>
+
+          {/* Fecha, hora y lugar — pantallas grandes: franja con líneas finas */}
+          <div className="hidden sm:flex flex-wrap justify-center border-y border-oro/25">
+            <div className="px-8 py-4 flex flex-col gap-1 text-center">
               <Eyebrow className="text-tenue !text-[11px] sm:!text-xs">Fecha</Eyebrow>
               <span className="text-base sm:text-lg font-medium">{EVENTO.fechaTexto}</span>
             </div>
-            <div className="px-3 sm:px-8 py-4 flex flex-col gap-1 text-center border-l border-oro/25">
+            <div className="px-8 py-4 flex flex-col gap-1 text-center border-l border-oro/25">
               <Eyebrow className="text-tenue !text-[11px] sm:!text-xs">Hora</Eyebrow>
               <span className="text-base sm:text-lg font-medium">{EVENTO.horaTexto}</span>
             </div>
-            <div className="col-span-2 px-3 sm:px-8 py-4 flex flex-col gap-1 text-center border-t sm:border-t-0 sm:border-l border-oro/25">
+            <div className="px-8 py-4 flex flex-col gap-1 text-center border-l border-oro/25">
               <Eyebrow className="text-tenue !text-[11px] sm:!text-xs">Lugar</Eyebrow>
               {EVENTO.mapaUrl ? (
                 <a href={EVENTO.mapaUrl} target="_blank" rel="noreferrer" className="text-base sm:text-lg font-medium text-oro underline underline-offset-4 hover:text-white">
@@ -105,17 +120,17 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
 
           {/* Cuenta regresiva */}
           {!done && (
-            <div className="flex justify-center gap-4 sm:gap-8" aria-label="Cuenta regresiva">
+            <div className="flex justify-center gap-5 sm:gap-8" aria-label="Cuenta regresiva">
               {parts.map(([label, value]) => (
-                <div key={label} className="min-w-[56px] sm:min-w-[72px] flex flex-col items-center gap-1">
-                  <span className="font-display font-bold text-4xl sm:text-5xl leading-none text-white tabular-nums">{String(value).padStart(2, '0')}</span>
+                <div key={label} className="min-w-[48px] sm:min-w-[72px] flex flex-col items-center gap-1">
+                  <span className="font-display font-bold text-3xl sm:text-5xl leading-none text-white tabular-nums">{String(value).padStart(2, '0')}</span>
                   <Eyebrow className="text-tenue !text-[11px] sm:!text-xs !tracking-[0.2em]">{label}</Eyebrow>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-3 pt-2">
+          <div className="w-full sm:w-auto flex flex-col sm:flex-row justify-center gap-2.5 sm:gap-3 sm:pt-2">
             <a
               id="hero-cta"
               href="#entradas"
@@ -127,7 +142,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             <button
               type="button"
               onClick={onOpenLookup}
-              className="inline-flex items-center justify-center min-h-[56px] px-7 rounded-full border border-crema/40 hover:bg-white/10 text-crema font-medium text-base sm:text-lg cursor-pointer"
+              className="inline-flex items-center justify-center min-h-[48px] sm:min-h-[56px] px-7 rounded-full border border-crema/40 hover:bg-white/10 text-crema font-medium text-base sm:text-lg cursor-pointer"
             >
               Consultar mi boleto
             </button>
@@ -135,37 +150,8 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
         </div>
       </section>
 
-      {/* ---------- El concierto ---------- */}
-      <section className="bg-crema text-[#1A1F1B] px-4 py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto flex flex-wrap gap-10 sm:gap-16 items-start">
-          <div className="flex-[999_1_420px] min-w-0 flex flex-col gap-5">
-            <Eyebrow className="text-marca">El concierto</Eyebrow>
-            <h2 className="font-display font-bold text-3xl sm:text-5xl leading-tight text-oscuro text-balance">{EVENTO.titularConcierto}</h2>
-            <p className="text-lg sm:text-xl leading-relaxed text-[#4A4640] text-pretty">
-              {EVENTO.descripcion.replace(/\.$/, '')} en {EVENTO.lugar}.
-            </p>
-          </div>
-          <ul className="flex-[1_1_320px] min-w-0 bg-white border border-linea rounded-[20px] divide-y divide-[#ECE7DD]">
-            {datos.map((d) => (
-              <li key={d.label} className="px-6 sm:px-7 py-5 sm:py-6 flex gap-4 items-center">
-                <span className="text-marca shrink-0" aria-hidden="true">{d.icon}</span>
-                <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="text-[13px] tracking-[0.16em] uppercase text-cafe">{d.label}</span>
-                  <span className="text-lg font-semibold">{d.value}</span>
-                  {d.href && (
-                    <a href={d.href} target="_blank" rel="noreferrer" className="text-[15px] font-semibold text-marca underline underline-offset-4 hover:text-marca-oscuro">
-                      Cómo llegar
-                    </a>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       {/* ---------- Entradas ---------- */}
-      <section id="entradas" className="scroll-mt-16 bg-oscuro text-crema px-4 py-16 sm:py-24">
+      <section id="entradas" className="scroll-mt-16 bg-oscuro text-crema px-4 pt-6 pb-16 sm:pt-12 sm:pb-24">
         <div className="max-w-5xl mx-auto flex flex-col items-center gap-10">
           <div className="flex flex-col items-center gap-3 text-center">
             <Eyebrow className="text-oro">Entradas</Eyebrow>
@@ -261,24 +247,82 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             </div>
           </div>
           <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en bolívares según la tasa BCV del día ({formatBs(bcvRate)} Bs/$).</p>
+
+          {/* Cómo comprar: pasos junto a la compra */}
+          <div className="w-full pt-6 sm:pt-8 border-t border-oro/15 flex flex-col gap-6">
+            <h3 className="text-center font-display font-bold text-2xl sm:text-3xl">Cómo comprar</h3>
+            <ol className="grid gap-5 sm:gap-8 sm:grid-cols-3">
+              {pasos.map(([titulo, texto], i) => (
+                <li key={titulo} className="flex gap-4">
+                  <span className="shrink-0 w-11 h-11 rounded-full border border-oro/40 grid place-items-center font-display font-bold text-xl text-oro" aria-hidden="true">
+                    {i + 1}
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-base sm:text-lg font-semibold">{titulo}</span>
+                    <span className="text-[15px] leading-relaxed text-tenue">{texto}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 
-      {/* ---------- Cómo comprar ---------- */}
-      <section className="bg-crema text-[#1A1F1B] px-4 py-16 sm:py-20">
-        <div className="max-w-6xl mx-auto flex flex-col gap-8 sm:gap-10">
-          <h2 className="text-center font-display font-bold text-3xl sm:text-4xl text-oscuro">Cómo comprar</h2>
-          <ol className="grid gap-4 sm:gap-6 sm:grid-cols-3">
-            {pasos.map(([titulo, texto], i) => (
-              <li key={titulo} className="flex sm:flex-col gap-4 sm:gap-3 p-5 sm:p-7 bg-white border border-linea rounded-[20px]">
-                <span className="font-display font-bold text-4xl leading-none text-marca" aria-hidden="true">{i + 1}</span>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-lg sm:text-xl font-semibold">{titulo}</span>
-                  <span className="text-[15px] sm:text-base leading-relaxed text-[#4A4640]">{texto}</span>
-                </div>
-              </li>
+      {/* ---------- El concierto ---------- */}
+      <section className="bg-crema text-[#1A1F1B] px-4 py-16 sm:py-24">
+        <div className="max-w-6xl mx-auto flex flex-wrap gap-10 sm:gap-16 items-start">
+          <div className="flex-[999_1_420px] min-w-0 flex flex-col gap-5">
+            <Eyebrow className="text-marca">El concierto</Eyebrow>
+            <h2 className="font-display font-bold text-3xl sm:text-5xl leading-tight text-oscuro text-balance">{EVENTO.titularConcierto}</h2>
+            <p className="text-lg sm:text-xl leading-relaxed text-[#4A4640] text-pretty">
+              {EVENTO.descripcion.replace(/\.$/, '')} en {EVENTO.lugar}.
+            </p>
+          </div>
+          <div className="flex-[1_1_320px] min-w-0 bg-white border border-linea rounded-[20px] p-6 sm:p-7 flex flex-col gap-4">
+            <span className="text-marca" aria-hidden="true"><MapPin className="w-8 h-8" strokeWidth={1.6} /></span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[13px] tracking-[0.16em] uppercase text-cafe">El lugar</span>
+              <span className="text-xl font-semibold">{EVENTO.lugar}</span>
+              <span className="text-base text-[#4A4640]">{EVENTO.ciudad}</span>
+            </div>
+            <span className="inline-flex items-center gap-2 text-base text-[#4A4640]">
+              <Clock className="w-4 h-4 text-marca" aria-hidden="true" />
+              {EVENTO.fechaTexto} · {EVENTO.horaTexto}
+            </span>
+            {EVENTO.mapaUrl && (
+              <a
+                href={EVENTO.mapaUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-flex items-center justify-center gap-2 min-h-[48px] rounded-full border border-marca text-marca font-semibold hover:bg-marca hover:text-white"
+              >
+                Cómo llegar
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Preguntas frecuentes (de los términos del evento) ---------- */}
+      <section className="bg-white text-[#1A1F1B] px-4 py-16 sm:py-20">
+        <div className="max-w-3xl mx-auto flex flex-col gap-8">
+          <h2 className="text-center font-display font-bold text-3xl sm:text-4xl text-oscuro">Antes de ir</h2>
+          <div className="flex flex-col divide-y divide-linea border-y border-linea">
+            {TERMINOS.map((t) => (
+              <details key={t.titulo} className="group">
+                <summary className="list-none flex items-center justify-between gap-4 min-h-[60px] py-4 cursor-pointer text-lg font-semibold [&::-webkit-details-marker]:hidden">
+                  {t.titulo}
+                  <ChevronDown className="w-5 h-5 shrink-0 text-marca transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+                </summary>
+                <ul className="pb-5 -mt-1 flex flex-col gap-2 text-base leading-relaxed text-[#4A4640]">
+                  {t.puntos.map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>
+              </details>
             ))}
-          </ol>
+          </div>
         </div>
       </section>
     </>
