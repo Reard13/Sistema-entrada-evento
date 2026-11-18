@@ -148,8 +148,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   }, [reservations, filter, query]);
 
   return (
-    <div className="fixed inset-0 z-[4000] bg-gray-50 overflow-y-auto">
-      <header className="sticky top-0 z-10 bg-oscuro text-white">
+    <div className="panel-oscuro fixed inset-0 z-[4000] overflow-y-auto text-crema">
+      <header className="header-vidrio sticky top-0 z-10 text-white">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="font-bold leading-tight truncate">Panel · {EVENTO.nombre}</p>

@@ -98,6 +98,36 @@ body {
   }
 }
 
+/* Panel del personal: mismo fondo que la portada (foto + degradado) y tarjetas oscuras translúcidas.
+   Reasigna dentro del panel los colores claros de las tarjetas para no tocar cada componente. */
+.panel-oscuro {
+  color-scheme: dark;
+  background:
+    radial-gradient(70% 45% at 85% 0%, color-mix(in oklab, var(--marca) 28%, transparent), transparent 70%),
+    radial-gradient(60% 40% at 0% 100%, color-mix(in oklab, var(--oro) 8%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in oklab, var(--fondo-oscuro) 86%, transparent), var(--fondo-oscuro) 70%),
+    url(/portada.webp) center 30% / cover no-repeat,
+    var(--fondo-oscuro);
+}
+.panel-oscuro .bg-white { background-color: rgb(255 255 255 / 0.06); }
+.panel-oscuro .bg-gray-50,
+.panel-oscuro .bg-suave { background-color: rgb(255 255 255 / 0.08); }
+.panel-oscuro .hover\:bg-gray-50:hover { background-color: rgb(255 255 255 / 0.1); }
+.panel-oscuro .border-gray-200,
+.panel-oscuro .border-gray-300 { border-color: color-mix(in oklab, var(--oro) 16%, transparent); }
+.panel-oscuro .text-oscuro,
+.panel-oscuro .text-gray-700 { color: var(--crema); }
+.panel-oscuro .text-gray-500,
+.panel-oscuro .text-gray-600 { color: var(--tenue); }
+.panel-oscuro .text-gray-400 { color: color-mix(in oklab, var(--tenue) 75%, transparent); }
+.panel-oscuro .text-red-600,
+.panel-oscuro .text-red-700 { color: #f87171; }
+.panel-oscuro .border-red-300 { border-color: rgb(248 113 113 / 0.5); }
+.panel-oscuro .hover\:bg-red-50:hover { background-color: rgb(248 113 113 / 0.12); }
+.panel-oscuro input,
+.panel-oscuro select { color: var(--crema); }
+.panel-oscuro input::placeholder { color: color-mix(in oklab, var(--tenue) 80%, transparent); }
+
 /* Portada con foto: viñeta oscura para que el logo y el texto se lean */
 .hero-foto {
   background:
