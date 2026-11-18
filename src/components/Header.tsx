@@ -23,12 +23,11 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy })
           ) : (
             <img src={logo} alt={EVENTO.organizador} className="h-14 sm:h-16 w-auto shrink-0" />
           ))}
-        <button type="button" onClick={onGoHome} className={`text-left cursor-pointer ${logo ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}`}>
-          {!logo && <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>}
-          <span className="block text-[11px] sm:text-xs text-white/70 leading-tight">
-            {EVENTO.lugar}
-          </span>
-        </button>
+        {!logo && (
+          <button type="button" onClick={onGoHome} className="text-left cursor-pointer min-w-0">
+            <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>
+          </button>
+        )}
       </div>
       <nav className="flex items-center gap-2 shrink-0">
         <button
