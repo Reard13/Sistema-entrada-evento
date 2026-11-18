@@ -11,11 +11,13 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy }) => (
   <header className="sticky top-0 z-50 bg-oscuro text-white border-b border-white/10">
     <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
-      <button type="button" onClick={onGoHome} className="min-w-0 text-left cursor-pointer">
-        {/* Si el cliente tiene logo, se puede poner aquí: <img src="/logo.png" className="h-9" /> */}
-        <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>
-        <span className="block text-[11px] sm:text-xs text-white/70 leading-tight">
-          {EVENTO.fechaCorta} · {EVENTO.lugar}
+      <button type="button" onClick={onGoHome} className="min-w-0 text-left cursor-pointer flex items-center gap-3">
+        {EVENTO.logoMarcaTexto && <img src={EVENTO.logoMarcaTexto} alt={EVENTO.organizador} className="h-9 sm:h-10 w-auto shrink-0" />}
+        <span className={EVENTO.logoMarcaTexto ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}>
+          {!EVENTO.logoMarcaTexto && <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>}
+          <span className="block text-[11px] sm:text-xs text-white/70 leading-tight">
+            {EVENTO.fechaCorta} · {EVENTO.lugar}
+          </span>
         </span>
       </button>
       <nav className="flex items-center gap-2 shrink-0">

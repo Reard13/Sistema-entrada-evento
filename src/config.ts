@@ -24,6 +24,10 @@ export const EVENTO = {
   // Enlace de Google Maps (opcional)
   mapaUrl: 'https://maps.app.goo.gl/eKA95Eiten6ZQraE6',
 
+  // Logo del organizador (archivos en public/, fondo transparente). Vacío = no se muestra.
+  logoMarca: '/marca.png', // con micrófono: portada y pie de página
+  logoMarcaTexto: '/marca-texto.png', // solo el nombre: barra superior
+
   // Logo con el título del evento (archivo en public/). Vacío = el nombre escrito en texto.
   logoTitulo: '/titulo.svg',
 

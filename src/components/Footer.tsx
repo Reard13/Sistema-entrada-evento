@@ -9,6 +9,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
     <footer className="bg-oscuro text-white">
       <div className="max-w-6xl mx-auto px-4 py-10 grid gap-8 sm:grid-cols-2">
         <div>
+          {EVENTO.logoMarca && <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="mb-4 h-20 w-auto" />}
           <p className="font-extrabold text-lg">{EVENTO.nombre}</p>
           <p className="mt-1 text-sm text-white/70">
             {EVENTO.fechaTexto} · {EVENTO.horaTexto}

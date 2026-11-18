@@ -43,6 +43,12 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
         style={EVENTO.fotoPortada ? ({ '--hero-foto': `url(${EVENTO.fotoPortada})` } as React.CSSProperties) : undefined}
       >
         <div className="max-w-6xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
+          {EVENTO.logoMarca && (
+            <div className="mb-6 flex flex-col items-center gap-1">
+              <img src={EVENTO.logoMarca} alt={EVENTO.organizador} className="w-40 sm:w-52 h-auto" />
+              <span className="text-[11px] sm:text-xs font-semibold tracking-[0.35em] uppercase text-white/60">presenta</span>
+            </div>
+          )}
           {EVENTO.logoTitulo ? (
             <h1 className="mx-auto max-w-4xl">
               <img src={EVENTO.logoTitulo} alt={EVENTO.nombre} className="block w-full h-auto drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)]" />
