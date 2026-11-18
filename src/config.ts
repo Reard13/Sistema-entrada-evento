@@ -6,7 +6,7 @@
  */
 
 export const EVENTO = {
-  nombre: 'Sanremo Sin Fronteras canta en Navidad',
+  nombre: 'Sanremo Sin Fronteras canta la Navidad',
   edicion: '2026',
   lema: 'Las mejores canciones navideñas internacionales',
   descripcion:
