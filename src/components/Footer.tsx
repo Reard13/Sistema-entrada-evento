@@ -47,10 +47,12 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-4 pt-4 pb-28 sm:pb-4 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-[13px] text-[#8F8A7F]">
-          <span>
-            © {new Date(EVENTO.fechaISO).getFullYear()} {EVENTO.organizador} · Desarrollado por Alejandro Reina
+        <div className="max-w-6xl mx-auto px-4 pt-4 pb-28 sm:pb-5 flex flex-col items-center gap-1.5 text-center">
+          <span className="text-xs sm:text-[13px] text-[#8F8A7F]">
+            © {new Date(EVENTO.fechaISO).getFullYear()} {EVENTO.organizador}
           </span>
+          {/* Crédito del desarrollador, pequeño y discreto al final de la página */}
+          <span className="text-[11px] tracking-wide text-[#8F8A7F]/80">Desarrollado por Alejandro Reina</span>
         </div>
       </div>
       <TermsModal isOpen={termsOpen} onClose={() => setTermsOpen(false)} />

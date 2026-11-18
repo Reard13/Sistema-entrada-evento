@@ -184,13 +184,6 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.textAlign = 'left';
   ctx.fillText(r.locatorCode, x + lw, 653);
 
-  // Crédito discreto abajo a la derecha
-  ctx.fillStyle = 'rgba(185,180,168,0.6)';
-  ctx.font = '500 18px "Jost", sans-serif';
-  ctx.textAlign = 'right';
-  ctx.fillText('Desarrollado por Alejandro Reina', right, 695);
-  ctx.textAlign = 'left';
-
   // ---- Talón ----
   const cx = STUB_X + (TICKET_W - STUB_X) / 2;
   const qrSize = 300;
