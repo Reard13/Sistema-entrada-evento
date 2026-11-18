@@ -4,16 +4,14 @@ import { ENTRADAS } from '../config';
 
 /**
  * Botón «Comprar entradas» que acompaña al usuario mientras baja por la página.
- * Aparece cuando el usuario ya bajó más allá del botón de la portada y se oculta mientras
- * la sección de entradas está a la vista (ahí ya está la compra) o si hay una ventana abierta.
+ * Aparece cuando el usuario ya bajó más allá del botón de la portada y se queda fijo hasta el final
+ * de la página. Solo se oculta si hay una ventana abierta (pago, «Mi boleto», entrada o panel).
  */
 export const FloatingBuy: React.FC<{ hidden: boolean }> = ({ hidden }) => {
   const [heroPassed, setHeroPassed] = useState(false);
-  const [ticketsVisible, setTicketsVisible] = useState(false);
 
   useEffect(() => {
     const hero = document.getElementById('hero-cta');
-    const tickets = document.getElementById('entradas');
     const observers: IntersectionObserver[] = [];
     if (hero) {
       // Solo cuenta como «pasado» cuando el botón de la portada quedó por encima de la pantalla
@@ -21,16 +19,10 @@ export const FloatingBuy: React.FC<{ hidden: boolean }> = ({ hidden }) => {
       o.observe(hero);
       observers.push(o);
     }
-    if (tickets) {
-      // Cuenta como «a la vista» cuando la tarjeta de compra ocupa el centro de la pantalla
-      const o = new IntersectionObserver(([e]) => setTicketsVisible(e.isIntersecting), { rootMargin: '-35% 0px -35% 0px' });
-      o.observe(tickets);
-      observers.push(o);
-    }
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
-  const show = !hidden && heroPassed && !ticketsVisible;
+  const show = !hidden && heroPassed;
 
   return (
     <div
