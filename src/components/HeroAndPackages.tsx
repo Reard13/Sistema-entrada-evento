@@ -233,7 +233,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               {/* Encabezado del ticket */}
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#DDD7CB]">
                 <div className="flex flex-col gap-1 min-w-0">
-                  <span className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Tu entrada · {EVENTO.edicion}</span>
+                  <span className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Tu entrada</span>
                   <span className="font-display font-bold text-xl sm:text-2xl leading-tight text-oscuro text-balance">{EVENTO.nombre}</span>
                 </div>
                 <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#E6E0D3] text-marca-oscuro text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">

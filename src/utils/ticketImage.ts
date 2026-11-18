@@ -112,14 +112,14 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   // ---- Cuerpo ----
   const x = 80;
   const right = STUB_X - 80;
-  // Logo del organizador (con el micrófono) a la izquierda; a su lado el nombre del evento, sin repetir el del organizador
+  // --- Encabezado: logo del organizador y, a su lado, el nombre del evento (sin repetir el del organizador)
   const marca = EVENTO.logoMarca ? await loadImage(EVENTO.logoMarca).catch(() => null) : null;
   let tx = x;
   if (marca && marca.width) {
-    const h = 250;
+    const h = 220;
     const w = (marca.width / marca.height) * h;
-    ctx.drawImage(marca, x - 10, 95, w, h);
-    tx = x + w + 30;
+    ctx.drawImage(marca, x, 70, w, h);
+    tx = x + w + 40;
   }
   const org = EVENTO.organizador.trim();
   let titulo = EVENTO.nombre.trim();
@@ -128,43 +128,51 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
 
   ctx.fillStyle = ORO;
   ctx.font = '600 24px "Jost", sans-serif';
-  spaced(ctx, 'ENTRADA GENERAL', tx, 200, 7);
+  spaced(ctx, 'ENTRADA GENERAL', tx, 168, 7);
   ctx.fillStyle = '#FFFFFF';
   fitText(ctx, titulo, right - tx, 700, 76, SERIF);
   ctx.textAlign = 'left';
-  ctx.fillText(titulo, tx, 285);
-  ctx.fillStyle = TENUE;
-  ctx.font = '500 30px "Jost", sans-serif';
-  ctx.fillText(EVENTO.edicion, tx, 335);
+  ctx.fillText(titulo, tx, 248);
 
-  // Fecha, hora y lugar sobre una línea fina dorada
-  ctx.fillStyle = 'rgba(241,227,154,0.3)';
-  ctx.fillRect(x, 440, right - x, 2);
-  const meta: [string, string][] = [
-    ['FECHA', EVENTO.fechaTexto],
-    ['HORA', EVENTO.horaTexto],
-    ['LUGAR', EVENTO.lugar],
+  const linea = (y: number) => {
+    ctx.fillStyle = 'rgba(241,227,154,0.3)';
+    ctx.fillRect(x, y, right - x, 2);
+  };
+
+  // --- Fecha, hora y lugar: columnas a la medida de su contenido, separadas por líneas finas
+  linea(340);
+  const meta: [string, string, number][] = [
+    ['FECHA', EVENTO.fechaTexto, 0.38],
+    ['HORA', EVENTO.horaTexto, 0.2],
+    ['LUGAR', EVENTO.lugar, 0.42],
   ];
-  const colW = (right - x) / 3;
-  meta.forEach(([label, value], i) => {
-    const mx = x + colW * i;
+  let mx = x;
+  meta.forEach(([label, value, frac], i) => {
+    const colW = (right - x) * frac;
+    const pad = i === 0 ? 0 : 32;
+    if (i > 0) {
+      ctx.fillStyle = 'rgba(241,227,154,0.3)';
+      ctx.fillRect(mx, 368, 2, 90);
+    }
     ctx.fillStyle = TENUE;
     ctx.font = '500 20px "Jost", sans-serif';
-    spaced(ctx, label, mx, 488, 5);
+    spaced(ctx, label, mx + pad, 400, 5);
     ctx.fillStyle = CREMA;
-    fitText(ctx, value, colW - 24, 600, 32);
+    fitText(ctx, value, colW - pad - 20, 600, 34);
     ctx.textAlign = 'left';
-    ctx.fillText(value, mx, 532);
+    ctx.fillText(value, mx + pad, 446);
+    mx += colW;
   });
 
-  // Titular
+  // --- Titular
+  linea(490);
   ctx.fillStyle = TENUE;
   ctx.font = '500 20px "Jost", sans-serif';
-  spaced(ctx, 'A NOMBRE DE', x, 604, 5);
+  spaced(ctx, 'A NOMBRE DE', x, 548, 5);
   ctx.fillStyle = '#FFFFFF';
-  fitText(ctx, r.buyer.fullName, right - x, 700, 44, SERIF);
+  fitText(ctx, r.buyer.fullName, right - x, 700, 48, SERIF);
   ctx.textAlign = 'left';
-  ctx.fillText(r.buyer.fullName, x, 656);
+  ctx.fillText(r.buyer.fullName, x, 606);
 
   // ---- Talón ----
   const cx = STUB_X + (TICKET_W - STUB_X) / 2;
