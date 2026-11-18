@@ -4,7 +4,7 @@
 :root {
   --marca: #a60b08;
   --marca-oscuro: #5e0001;
-  --fondo-oscuro: #1d2e19;
+  --fondo-oscuro: #0b100d;
   --suave: #edebe6;
   --vip: #76584c;
 }
@@ -55,8 +55,8 @@ body {
 .hero-foto {
   background:
     linear-gradient(180deg,
-      color-mix(in oklab, var(--fondo-oscuro) 70%, transparent) 0%,
-      color-mix(in oklab, var(--fondo-oscuro) 80%, transparent) 55%,
+      color-mix(in oklab, var(--fondo-oscuro) 78%, transparent) 0%,
+      color-mix(in oklab, var(--fondo-oscuro) 86%, transparent) 55%,
       var(--fondo-oscuro) 100%),
     var(--hero-foto) center 35% / cover no-repeat,
     var(--fondo-oscuro);

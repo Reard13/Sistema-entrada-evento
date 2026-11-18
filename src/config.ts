@@ -45,7 +45,7 @@ export const INSTAGRAM = ''; // ej. 'mievento' (sin @). Vacío = no se muestra.
 export const COLORES = {
   marca: '#A60B08', // rojo navidad: botones y asientos
   marcaOscuro: '#5E0001', // rojo vino: textos fuertes y hover
-  fondoOscuro: '#1D2E19', // verde pino: portada, barra de compra y entrada
+  fondoOscuro: '#0B100D', // casi negro con matiz verde: portada, barra superior, barra de compra y entrada
   suave: '#EDEBE6', // crema (#CFCABF aclarado): fondos claros
   vip: '#76584C', // marrón de la paleta (sin uso: no hay entrada VIP)
 };
