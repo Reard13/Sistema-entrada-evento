@@ -31,7 +31,7 @@ export const EVENTO = {
   fotoPortada: '/portada.webp',
 
   // Dirección pública de la web (para la vista previa al compartir el enlace)
-  urlPublica: 'https://mi-evento.onrender.com',
+  urlPublica: 'https://sanremo-sin-fronteras.onrender.com',
 };
 
 // Prefijo del localizador de cada compra (ej. #EVT-12345678)
