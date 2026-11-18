@@ -112,22 +112,30 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   // ---- Cuerpo ----
   const x = 80;
   const right = STUB_X - 80;
+  // Logo del organizador (con el micrófono) a la izquierda; a su lado el nombre del evento, sin repetir el del organizador
+  const marca = EVENTO.logoMarca ? await loadImage(EVENTO.logoMarca).catch(() => null) : null;
+  let tx = x;
+  if (marca && marca.width) {
+    const h = 250;
+    const w = (marca.width / marca.height) * h;
+    ctx.drawImage(marca, x - 10, 95, w, h);
+    tx = x + w + 30;
+  }
+  const org = EVENTO.organizador.trim();
+  let titulo = EVENTO.nombre.trim();
+  if (marca && titulo.toLowerCase().startsWith(org.toLowerCase())) titulo = titulo.slice(org.length).trim();
+  titulo = titulo.charAt(0).toUpperCase() + titulo.slice(1);
+
   ctx.fillStyle = ORO;
   ctx.font = '600 24px "Jost", sans-serif';
-  spaced(ctx, 'ENTRADA GENERAL', x, 92, 7);
-
-  // Título: el logo del evento si existe; si no, el nombre en serif
-  const logo = EVENTO.logoTitulo ? await loadImage(EVENTO.logoTitulo).catch(() => null) : null;
-  if (logo && logo.width) {
-    const w = right - x;
-    const h = (logo.height / logo.width) * w;
-    ctx.drawImage(logo, x, 122, w, h);
-  } else {
-    ctx.fillStyle = '#FFFFFF';
-    fitText(ctx, EVENTO.nombre, right - x, 700, 84, SERIF);
-    ctx.textAlign = 'left';
-    ctx.fillText(EVENTO.nombre, x, 230);
-  }
+  spaced(ctx, 'ENTRADA GENERAL', tx, 200, 7);
+  ctx.fillStyle = '#FFFFFF';
+  fitText(ctx, titulo, right - tx, 700, 76, SERIF);
+  ctx.textAlign = 'left';
+  ctx.fillText(titulo, tx, 285);
+  ctx.fillStyle = TENUE;
+  ctx.font = '500 30px "Jost", sans-serif';
+  ctx.fillText(EVENTO.edicion, tx, 335);
 
   // Fecha, hora y lugar sobre una línea fina dorada
   ctx.fillStyle = 'rgba(241,227,154,0.3)';
@@ -200,7 +208,8 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   } else {
     spaced(ctx, 'ENTRADA N°', cx, 470, 6, 'center');
     ctx.fillStyle = COLORES.fondoOscuro;
-    ctx.font = `700 96px ${SERIF}`;
+    // Cifras en Jost: las de Playfair en canvas salen «antiguas» (el 3 y el 5 bajan de la línea)
+    ctx.font = '700 96px "Jost", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(String(seat.num), cx, 566);
   }
