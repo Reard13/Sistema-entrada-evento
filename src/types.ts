@@ -13,6 +13,7 @@ export interface BuyerInfo {
 }
 
 export interface PaymentReportData {
+  method?: string; // id del método en METODOS_PAGO (las compras antiguas no lo tienen: Pago Móvil)
   referenceNumber: string;
   bank: string;
   payerPhone: string;

@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { ASIENTOS_NUMERADOS, ENTRADAS, MAX_POR_COMPRA, PREFIJO_LOCALIZADOR, TASA_BCV_RESPALDO } from './src/config';
+import { ASIENTOS_NUMERADOS, ENTRADAS, MAX_POR_COMPRA, METODOS_PAGO, PREFIJO_LOCALIZADOR, TASA_BCV_RESPALDO } from './src/config';
 import { ASIENTOS_VALIDOS, entradasLibres } from './src/constants';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -175,7 +175,7 @@ type Reserva = {
   createdAt: number;
   seats: { id: string; fila: string; num: number; pkg: 'General' }[];
   buyer: { fullName: string; phone: string };
-  paymentReport: { referenceNumber: string; bank: string; payerPhone: string; reportedAt: number };
+  paymentReport: { method?: string; referenceNumber: string; bank: string; payerPhone: string; reportedAt: number };
   approvalStatus: 'pending_approval' | 'approved' | 'rejected';
   approvedAt?: number;
   rejectionReason?: string;
@@ -300,7 +300,10 @@ async function startServer() {
     });
     const fullName = clip(b.buyer?.fullName, 80);
     const phone = clip(b.buyer?.phone, 20);
-    const reference = clip(b.paymentReport?.referenceNumber, 30);
+    const reference = clip(b.paymentReport?.referenceNumber, 40);
+    // Método de pago: solo uno de los activos en config.ts (sin dato = Pago Móvil, como antes)
+    const metodo = METODOS_PAGO.find((m) => m.activo && m.id === (b.paymentReport?.method || 'pagomovil'));
+    if (!metodo) return res.status(400).json({ success: false, message: 'Elige un método de pago válido.' });
     if (seats.length === 0 || seats.length > 20 || new Set(seatIds).size !== seatIds.length || !seatIds.every((id) => ASIENTOS_VALIDOS.has(id))) {
       return res.status(400).json({ success: false, message: 'Asientos no válidos.' });
     }
@@ -333,8 +336,9 @@ async function startServer() {
       seats,
       buyer: { fullName, phone },
       paymentReport: {
+        method: metodo.id,
         referenceNumber: reference,
-        bank: clip(b.paymentReport?.bank, 60),
+        bank: metodo.pideBanco ? clip(b.paymentReport?.bank, 60) : '',
         payerPhone: clip(b.paymentReport?.payerPhone, 20) || phone,
         reportedAt: now,
       },

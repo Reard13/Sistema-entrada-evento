@@ -39,7 +39,7 @@ export type SubmitResult =
 export async function submitReservation(input: {
   seats: SelectedSeat[];
   buyer: { fullName: string; phone: string };
-  paymentReport: { referenceNumber: string; bank: string; payerPhone: string };
+  paymentReport: { method: string; referenceNumber: string; bank: string; payerPhone: string };
   bcvRate: number;
   termsAccepted: boolean;
   termsVersion: string;

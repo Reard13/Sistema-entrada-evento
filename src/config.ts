@@ -73,6 +73,69 @@ export const PAGO_MOVIL = {
   titular: 'Organización Ejemplo',
 };
 
+/**
+ * Métodos de pago que el comprador puede elegir.
+ *  activo   = false lo oculta sin borrarlo.
+ *  moneda   = 'Bs' cobra el monto en bolívares (tasa BCV); 'USD' cobra en dólares.
+ *  datos    = lo que el comprador ve para pagar; «copiar» muestra el botón de copiar.
+ *  pideBanco = pide el banco desde el que se pagó (solo pagos en bolívares).
+ *  referencia = cómo se llama el comprobante en ese método.
+ */
+export type MetodoPago = {
+  id: string;
+  nombre: string;
+  moneda: 'Bs' | 'USD';
+  activo: boolean;
+  datos: { label: string; valor: string; copiar?: string }[];
+  pideBanco: boolean;
+  referencia: string;
+  ejemploReferencia: string;
+};
+
+export const METODOS_PAGO: MetodoPago[] = [
+  {
+    id: 'pagomovil',
+    nombre: 'Pago Móvil',
+    moneda: 'Bs',
+    activo: true,
+    datos: [
+      { label: 'Banco', valor: PAGO_MOVIL.banco },
+      { label: 'Titular', valor: PAGO_MOVIL.titular },
+      { label: 'Teléfono', valor: PAGO_MOVIL.telefono, copiar: PAGO_MOVIL.telefono.replace(/\D/g, '') },
+      { label: 'RIF / C.I.', valor: PAGO_MOVIL.documento, copiar: PAGO_MOVIL.documento },
+    ],
+    pideBanco: true,
+    referencia: 'N° de referencia',
+    ejemploReferencia: 'Ej. 84729103',
+  },
+  {
+    id: 'zelle',
+    nombre: 'Zelle',
+    moneda: 'USD',
+    activo: true,
+    datos: [
+      { label: 'Correo de Zelle', valor: 'pagos@ejemplo.com', copiar: 'pagos@ejemplo.com' },
+      { label: 'Titular', valor: 'Nombre del titular' },
+    ],
+    pideBanco: false,
+    referencia: 'N° de confirmación de Zelle',
+    ejemploReferencia: 'Ej. ZL83J29KQ',
+  },
+  {
+    id: 'binance',
+    nombre: 'Binance Pay (USDT)',
+    moneda: 'USD',
+    activo: true,
+    datos: [
+      { label: 'Binance Pay ID', valor: '000000000', copiar: '000000000' },
+      { label: 'Usuario', valor: 'usuario_ejemplo' },
+    ],
+    pideBanco: false,
+    referencia: 'ID de la orden de Binance',
+    ejemploReferencia: 'Ej. 279384756102938',
+  },
+];
+
 // Minutos que se guardan los asientos mientras la persona paga
 export const MINUTOS_RESERVA = 15;
 

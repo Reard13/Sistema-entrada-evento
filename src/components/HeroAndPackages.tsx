@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, Clock, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
-import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, MAX_POR_COMPRA, PAGO_MOVIL, TERMINOS } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, MAX_POR_COMPRA, METODOS_PAGO, TERMINOS } from '../config';
 import { PackageType } from '../types';
 import { formatBs } from '../utils/exchangeRate';
 
@@ -11,6 +11,8 @@ interface Props {
   onBuyQuantity: (cantidad: number) => void;
   onOpenLookup: () => void;
   disponibles: number;
+  // true mientras la ventana de pago está abierta (el boleto vuelve a unirse al cerrarla)
+  compraAbierta: boolean;
 }
 
 function useCountdown(target: number) {
@@ -36,7 +38,67 @@ const Eyebrow: React.FC<{ className?: string; children: React.ReactNode }> = ({ 
   <span className={`text-xs sm:text-[13px] font-semibold tracking-[0.28em] uppercase ${className}`}>{children}</span>
 );
 
-export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onBuyQuantity, onOpenLookup, disponibles }) => {
+// Lista legible de los métodos activos: «Pago Móvil, Zelle o Binance Pay (USDT)»
+const nombresMetodos = (() => {
+  const n = METODOS_PAGO.filter((m) => m.activo).map((m) => m.nombre);
+  return n.length > 1 ? `${n.slice(0, -1).join(', ')} o ${n[n.length - 1]}` : n[0] ?? '';
+})();
+
+/**
+ * Boleto que se corta: al comprar, el talón (lado de la compra) se desprende por la línea
+ * perforada y se esconde detrás del boleto; al cerrar el pago vuelve a su lugar.
+ * Con «reducir movimiento» activado no hay animación.
+ */
+function useTear(compraAbierta: boolean) {
+  const stubRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const anim = useRef<Animation | null>(null);
+  const abierta = useRef(compraAbierta);
+
+  const restore = () => {
+    const a = anim.current;
+    if (!a) return;
+    anim.current = null;
+    a.reverse();
+    a.onfinish = () => a.cancel();
+  };
+
+  // Al cerrar el pago, el talón vuelve
+  useEffect(() => {
+    if (abierta.current && !compraAbierta) restore();
+    abierta.current = compraAbierta;
+  }, [compraAbierta]);
+
+  const tear = (then: () => void) => {
+    const stub = stubRef.current;
+    const body = bodyRef.current;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (!stub || !body || reduce || !stub.animate) return then();
+    // Si el talón está debajo (teléfono) se esconde hacia arriba; si está al lado, hacia la izquierda
+    const vertical = stub.offsetTop > body.offsetTop + 10;
+    const away = vertical ? 'translateY(14px) rotate(2.5deg)' : 'translateX(14px) rotate(3deg)';
+    const behind = vertical ? 'translateY(-70%) rotate(-1.5deg) scale(0.94)' : 'translateX(-70%) rotate(-3deg) scale(0.94)';
+    anim.current?.cancel();
+    anim.current = stub.animate(
+      [
+        { transform: 'none', offset: 0 },
+        { transform: away, offset: 0.28 },
+        { transform: behind, offset: 1 },
+      ],
+      { duration: 560, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' }
+    );
+    window.setTimeout(then, 430);
+    // Si la ventana de pago no llegó a abrirse (p. ej. agotado), el talón vuelve
+    window.setTimeout(() => {
+      if (!abierta.current) restore();
+    }, 1600);
+  };
+
+  return { stubRef, bodyRef, tear };
+}
+
+export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onBuyQuantity, onOpenLookup, disponibles, compraAbierta }) => {
+  const { stubRef, bodyRef, tear } = useTear(compraAbierta);
   const [cantidad, setCantidad] = useState(1);
   const maximo = Math.max(0, Math.min(MAX_POR_COMPRA, disponibles));
   const cant = Math.max(1, Math.min(cantidad, maximo || 1));
@@ -47,7 +109,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
 
   const pasos = [
     [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El total aparece en dólares y en bolívares a la tasa BCV del día.'],
-    ['Paga y reporta', 'Haz el Pago Móvil y envía la referencia por WhatsApp desde la misma página.'],
+    ['Paga y reporta', `Paga por ${nombresMetodos} y envía la referencia por WhatsApp desde la misma página.`],
     ['Recibe tu QR', 'Al verificar el pago, tu entrada con código QR queda lista en «Mi boleto».'],
   ];
 
@@ -161,9 +223,9 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             </p>
           </div>
 
-          <div className="w-full flex flex-wrap bg-crema text-[#1A1F1B] rounded-3xl overflow-hidden">
+          <div className="relative isolate w-full flex flex-wrap bg-crema text-[#1A1F1B] rounded-3xl overflow-hidden">
             {/* Lado del precio */}
-            <div className="flex-[999_1_380px] min-w-0 p-6 sm:p-10 flex flex-col gap-5 border-b-2 sm:border-b-0 sm:border-r-2 border-dashed border-[#CFCABF]">
+            <div ref={bodyRef} className="relative z-10 bg-crema flex-[999_1_380px] min-w-0 p-6 sm:p-10 flex flex-col gap-5 border-b-2 sm:border-b-0 sm:border-r-2 border-dashed border-[#CFCABF]">
               <span className="self-start px-3.5 py-1.5 rounded-full bg-[#E6E0D3] text-marca-oscuro text-xs sm:text-[13px] font-semibold tracking-[0.18em] uppercase">
                 Entrada general
               </span>
@@ -180,13 +242,13 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                 ))}
                 <li className="flex gap-2.5 items-center text-base sm:text-[17px]">
                   <Check className="w-5 h-5 shrink-0 text-marca" strokeWidth={2.2} />
-                  Pago por Pago Móvil{PAGO_MOVIL.banco.includes('Ejemplo') ? '' : ` (${PAGO_MOVIL.banco})`}
+                  Pago por {nombresMetodos}
                 </li>
               </ul>
             </div>
 
             {/* Lado de la compra */}
-            <div className="flex-[1_1_300px] min-w-0 p-6 sm:p-10 flex flex-col justify-center gap-5 bg-white">
+            <div ref={stubRef} className="relative z-0 will-change-transform flex-[1_1_300px] min-w-0 p-6 sm:p-10 flex flex-col justify-center gap-5 bg-white">
               {ASIENTOS_NUMERADOS ? (
                 <button
                   type="button"
@@ -236,7 +298,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                   </div>
                   <button
                     type="button"
-                    onClick={() => onBuyQuantity(cant)}
+                    onClick={() => tear(() => onBuyQuantity(cant))}
                     className="min-h-[56px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-semibold text-lg inline-flex items-center justify-center gap-2 cursor-pointer"
                   >
                     Continuar al pago

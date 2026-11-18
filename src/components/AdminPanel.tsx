@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { X, LogOut, Check, Ban, MessageCircle, RotateCcw, Trash2, Search, Lock, ScanLine, Wallet } from 'lucide-react';
 import { CheckInMap, ReservationData } from '../types';
-import { ASIENTOS_NUMERADOS, EVENTO } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO, METODOS_PAGO } from '../config';
 import { etiquetaEntrada } from '../constants';
 import { formatBs } from '../utils/exchangeRate';
 import { clearSession, login, readSession, SESSION_EXPIRED_EVENT, staffFetch, StaffSession } from '../utils/adminSession';
@@ -289,9 +289,12 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       <span className="font-semibold">{r.seats.map((s) => etiquetaEntrada(s)).join(', ')}</span>
                     </p>
                     <p>
-                      <span className="block text-xs text-gray-500">Pago Móvil</span>
+                      <span className="block text-xs text-gray-500">
+                        {METODOS_PAGO.find((m) => m.id === (r.paymentReport.method || 'pagomovil'))?.nombre || r.paymentReport.method}
+                      </span>
                       <span className="font-semibold">
-                        Ref. {r.paymentReport.referenceNumber} · {r.paymentReport.bank}
+                        Ref. {r.paymentReport.referenceNumber}
+                        {r.paymentReport.bank ? ` · ${r.paymentReport.bank}` : ''}
                       </span>
                       {r.paymentReport.payerPhone !== r.buyer.phone && <span className="block text-gray-600">Desde {r.paymentReport.payerPhone}</span>}
                     </p>

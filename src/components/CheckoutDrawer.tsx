@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, MessageCircle, ChevronDown } from 'lucide-react';
 import { SelectedSeat, ReservationData } from '../types';
-import { ASIENTOS_NUMERADOS, EVENTO, PAGO_MOVIL, WHATSAPP, TERMINOS_VERSION } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO, METODOS_PAGO, WHATSAPP, TERMINOS_VERSION } from '../config';
 import { BANCOS_VENEZUELA, etiquetaEntrada, palabraEntrada, precioEntrada, totalEntradasUsd } from '../constants';
 import { formatBs } from '../utils/exchangeRate';
 import { submitReservation } from '../utils/api';
@@ -30,6 +30,10 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   totalSeconds,
   bcvRate,
 }) => {
+  const metodos = METODOS_PAGO.filter((m) => m.activo);
+  const [metodoId, setMetodoId] = useState(metodos[0]?.id ?? 'pagomovil');
+  const metodo = metodos.find((m) => m.id === metodoId) ?? metodos[0];
+  const enBs = metodo?.moneda !== 'USD';
   const [buyer, setBuyer] = useState({ fullName: '', phone: '' });
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentBank, setPaymentBank] = useState(BANCOS_VENEZUELA[0]);
@@ -57,8 +61,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
     const errors: Record<string, string> = {};
     if (!buyer.fullName.trim()) errors.fullName = 'Ingresa tu nombre y apellido';
     if (buyer.phone.replace(/\D/g, '').length < 10) errors.phone = 'Ingresa un teléfono válido (ej. 0424-1234567)';
-    if (paymentReference.trim().length < 4) errors.paymentReference = 'Ingresa la referencia del Pago Móvil (al menos 4 dígitos)';
-    if (paymentBank === 'Otro Banco' && !paymentCustomBank.trim()) errors.paymentCustomBank = 'Escribe el nombre del banco';
+    if (paymentReference.trim().length < 4) errors.paymentReference = `Ingresa el ${metodo.referencia.toLowerCase()} (al menos 4 caracteres)`;
+    if (metodo.pideBanco && paymentBank === 'Otro Banco' && !paymentCustomBank.trim()) errors.paymentCustomBank = 'Escribe el nombre del banco';
     if (!termsAccepted) errors.terms = 'Debes aceptar los términos y condiciones para continuar';
     setFormErrors(errors);
     return errors;
@@ -77,7 +81,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
     // La pestaña de WhatsApp se abre ya (dentro del toque, para que el navegador no la bloquee)
     // y recibe la dirección solo si el servidor acepta la compra
     const waWindow = window.open('', '_blank');
-    const bank = paymentBank === 'Otro Banco' ? paymentCustomBank.trim() : paymentBank;
+    const bank = !metodo.pideBanco ? '' : paymentBank === 'Otro Banco' ? paymentCustomBank.trim() : paymentBank;
     const effectivePayerPhone = payerPhone.replace(/\D/g, '').length >= 10 ? payerPhone.trim() : buyer.phone.trim();
     const reference = paymentReference.trim();
 
@@ -86,7 +90,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
     const result = await submitReservation({
       seats: selectedSeats,
       buyer: { fullName: buyer.fullName.trim(), phone: buyer.phone.trim() },
-      paymentReport: { referenceNumber: reference, bank, payerPhone: effectivePayerPhone },
+      paymentReport: { method: metodo.id, referenceNumber: reference, bank, payerPhone: effectivePayerPhone },
       bcvRate,
       termsAccepted: true,
       termsVersion: TERMINOS_VERSION,
@@ -108,8 +112,10 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       `Localizador: *${r.locatorCode}*\n\n` +
       `*${r.buyer.fullName}* · ${r.buyer.phone}\n` +
       `${ASIENTOS_NUMERADOS ? (r.seats.length === 1 ? 'Asiento' : `Asientos (${r.seats.length})`) : r.seats.length === 1 ? 'Entrada' : `Entradas (${r.seats.length})`}: ${seatsLine}\n\n` +
-      `Ref. *${reference}* · ${bank}${payerLine}\n` +
-      `Monto: *Bs. ${formatBs(r.totalBs)}* ($${r.totalUsd.toFixed(2)}) · Tasa ${formatBs(r.bcvRate)}\n\n` +
+      `${metodo.nombre} · Ref. *${reference}*${bank ? ` · ${bank}` : ''}${payerLine}\n` +
+      (enBs
+        ? `Monto: *Bs. ${formatBs(r.totalBs)}* ($${r.totalUsd.toFixed(2)}) · Tasa ${formatBs(r.bcvRate)}\n\n`
+        : `Monto: *$${r.totalUsd.toFixed(2)}*\n\n`) +
       `Por favor verifiquen el pago para liberar mi QR. ¡Gracias!`;
     const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMsg)}`;
 
@@ -212,31 +218,62 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
             <div className="flex items-end justify-between gap-3 pt-3 border-t border-dashed border-gray-300">
               <div>
                 <span className="block text-xs font-bold uppercase tracking-wider text-gray-500">Total a pagar</span>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 mt-0.5">
-                  Tasa BCV {formatBs(bcvRate)} Bs/$
-                </span>
+                {enBs && (
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 mt-0.5">
+                    Tasa BCV {formatBs(bcvRate)} Bs/$
+                  </span>
+                )}
               </div>
               <div className="text-right">
                 <span className="block text-2xl font-bold text-marca-oscuro leading-none tabular-nums">
-                  Bs. {formatBs(totalBs)}
+                  {enBs ? `Bs. ${formatBs(totalBs)}` : `$${totalUsd.toFixed(2)}`}
                 </span>
-                <span className="text-xs font-bold text-gray-500">${totalUsd.toFixed(2)} USD</span>
+                <span className="text-xs font-bold text-gray-500">{enBs ? `$${totalUsd.toFixed(2)} USD` : 'en dólares'}</span>
               </div>
             </div>
           </section>
 
-          {/* Paso 1: Datos del Pago Móvil */}
+          {/* Paso 1: método de pago y sus datos */}
           <section className="rounded-2xl bg-suave border border-gray-200 px-4 pt-3 pb-2">
             <h3 className="flex items-center gap-2 text-sm font-bold text-marca-oscuro">
               <span className="w-6 h-6 rounded-full bg-marca text-white text-xs grid place-items-center">1</span>
-              Paga por Pago Móvil
+              Elige cómo pagar
             </h3>
-            <div className="divide-y divide-gray-200 mt-1">
-              <CopyRow id="banco" label="Banco" value={PAGO_MOVIL.banco} />
-              <CopyRow id="titular" label="Titular" value={PAGO_MOVIL.titular} />
-              <CopyRow id="telefono" label="Teléfono" value={PAGO_MOVIL.telefono} copyValue={PAGO_MOVIL.telefono.replace(/\D/g, '')} />
-              <CopyRow id="documento" label="RIF / C.I." value={PAGO_MOVIL.documento} copyValue={PAGO_MOVIL.documento.split(' ')[0]} />
-              <CopyRow id="monto" label="Monto" value={`Bs. ${formatBs(totalBs)}`} copyValue={formatBs(totalBs)} />
+            {metodos.length > 1 && (
+              <div role="radiogroup" aria-label="Método de pago" className="mt-3 grid grid-cols-3 gap-1.5">
+                {metodos.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={m.id === metodo.id}
+                    onClick={() => {
+                      setMetodoId(m.id);
+                      setPaymentReference('');
+                      setFormErrors({});
+                    }}
+                    className={`min-h-[52px] px-2 rounded-xl border text-[13px] font-bold leading-tight cursor-pointer transition-colors ${
+                      m.id === metodo.id ? 'bg-marca border-marca text-white' : 'bg-white border-gray-300 text-oscuro hover:border-marca'
+                    }`}
+                  >
+                    {m.nombre}
+                    <span className={`block text-[11px] font-semibold ${m.id === metodo.id ? 'text-white/80' : 'text-gray-500'}`}>
+                      {m.moneda === 'USD' ? 'en dólares' : 'en bolívares'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="divide-y divide-gray-200 mt-2">
+              {metodo.datos.map((d) => (
+                <CopyRow key={d.label} id={`${metodo.id}-${d.label}`} label={d.label} value={d.valor} copyValue={d.copiar} />
+              ))}
+              <CopyRow
+                id={`${metodo.id}-monto`}
+                label="Monto"
+                value={enBs ? `Bs. ${formatBs(totalBs)}` : `$${totalUsd.toFixed(2)}`}
+                copyValue={enBs ? formatBs(totalBs) : totalUsd.toFixed(2)}
+              />
             </div>
           </section>
 
@@ -286,12 +323,12 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label htmlFor="ck-ref" className={labelClass}>N° de referencia</label>
+                <label htmlFor="ck-ref" className={labelClass}>{metodo.referencia}</label>
                 <input
                   id="ck-ref"
                   type="text"
-                  inputMode="numeric"
-                  placeholder="Ej. 84729103"
+                  inputMode={enBs ? 'numeric' : 'text'}
+                  placeholder={metodo.ejemploReferencia}
                   value={paymentReference}
                   onChange={(e) => {
                     setPaymentReference(e.target.value);
@@ -304,6 +341,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                 )}
               </div>
 
+              {metodo.pideBanco && (
               <div>
                 <label htmlFor="ck-bank" className={labelClass}>Banco desde el que pagaste</label>
                 <select
@@ -334,10 +372,11 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                   <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.paymentCustomBank}</p>
                 )}
               </div>
+              )}
             </div>
 
-            {/* Teléfono del pagador solo si es distinto al del titular */}
-            {showPayerPhone ? (
+            {/* Teléfono del pagador solo si es distinto al del titular (pagos en bolívares) */}
+            {!metodo.pideBanco ? null : showPayerPhone ? (
               <div>
                 <label htmlFor="ck-payer" className={labelClass}>Teléfono desde el que se pagó</label>
                 <input
