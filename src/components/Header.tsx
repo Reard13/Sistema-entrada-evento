@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy })
         <button type="button" onClick={onGoHome} className={`text-left cursor-pointer ${logo ? 'hidden sm:block min-w-0 pl-3 border-l border-white/15' : 'block min-w-0'}`}>
           {!logo && <span className="block font-extrabold text-base sm:text-lg leading-tight truncate">{EVENTO.nombre}</span>}
           <span className="block text-[11px] sm:text-xs text-white/70 leading-tight">
-            {EVENTO.fechaCorta} · {EVENTO.lugar}
+            {EVENTO.lugar}
           </span>
         </button>
       </div>
