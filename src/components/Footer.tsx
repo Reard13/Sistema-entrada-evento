@@ -47,7 +47,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-4 pt-4 pb-28 sm:pb-5 flex flex-col items-center gap-1.5 text-center">
+        <div className="max-w-6xl mx-auto px-4 pt-4 pb-28 sm:pb-5 flex flex-col items-start gap-1.5 text-left">
           <span className="text-xs sm:text-[13px] text-[#8F8A7F]">
             © {new Date(EVENTO.fechaISO).getFullYear()} {EVENTO.organizador}
           </span>

@@ -80,6 +80,16 @@ body {
     backdrop-filter: blur(16px) saturate(140%);
   }
 }
+/* Borde inferior difuminado: la barra se funde con el contenido en vez de cortarlo en línea recta */
+.header-vidrio::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  height: 20px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--fondo-oscuro) 55%, transparent), transparent);
+}
 @media (prefers-reduced-transparency: reduce) {
   .header-vidrio {
     background: var(--fondo-oscuro);
