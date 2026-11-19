@@ -2,9 +2,9 @@
 
 /* Colores de la marca: los valores reales se toman de src/config.ts al cargar la página (ver main.tsx) */
 :root {
-  --marca: #a60b08;
-  --marca-oscuro: #5e0001;
-  --fondo-oscuro: #0b100d;
+  --marca: #c9a86a;
+  --marca-oscuro: #8a6a1f;
+  --fondo-oscuro: #05070d;
   --suave: #edebe6;
   --vip: #76584c;
   /* Tonos de apoyo del tema */
@@ -66,6 +66,20 @@ body {
     radial-gradient(60% 50% at 80% 10%, color-mix(in oklab, var(--marca) 55%, transparent), transparent 70%),
     radial-gradient(50% 40% at 10% 90%, color-mix(in oklab, var(--marca) 35%, transparent), transparent 70%),
     var(--fondo-oscuro);
+}
+
+/* Botones de compra: dorado champán metalizado (propuesta B), con texto café oscuro */
+.bg-marca {
+  background-image: linear-gradient(180deg, #fbf3d5 0%, #e8d9a6 48%, #c9a86a 52%, #efe0b0 100%);
+  background-color: #c9a86a;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6);
+}
+.bg-marca.text-white,
+.bg-marca.text-white:hover { color: #3a2a0a; }
+.bg-marca:hover,
+.hover\:bg-marca-oscuro:hover {
+  background-image: linear-gradient(180deg, #fff8e0 0%, #efe0b0 48%, #d7b475 52%, #f6eac2 100%);
+  background-color: #d7b475;
 }
 
 /* Barra superior translúcida: deja ver la foto al bajar sin perder legibilidad.

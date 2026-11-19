@@ -52,9 +52,9 @@ export const INSTAGRAM_URL = INSTAGRAM ? `https://www.instagram.com/${INSTAGRAM}
 
 // Colores de la marca (hex). Toda la web toma estos colores.
 export const COLORES = {
-  marca: '#A60B08', // rojo navidad: botones y asientos
-  marcaOscuro: '#5E0001', // rojo vino: textos fuertes y hover
-  fondoOscuro: '#0B100D', // casi negro con matiz verde: portada, barra superior, barra de compra y entrada
+  marca: '#C9A86A', // dorado champán: botones (degradado en index.css), asientos y canvas
+  marcaOscuro: '#8A6A1F', // dorado oscuro: textos fuertes y hover
+  fondoOscuro: '#05070D', // negro azulado (tema Escenario Sanremo): portada, barra, pie y entrada
   suave: '#EDEBE6', // crema (#CFCABF aclarado): fondos claros
   vip: '#76584C', // marrón de la paleta (sin uso: no hay entrada VIP)
 };
