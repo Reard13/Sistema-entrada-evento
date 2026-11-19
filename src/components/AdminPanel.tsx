@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { X, LogOut, Check, Ban, MessageCircle, RotateCcw, Trash2, Search, Lock, ScanLine, Wallet } from 'lucide-react';
+import { X, LogOut, Check, Ban, MessageCircle, RotateCcw, Trash2, Search, Lock, ScanLine, Wallet, Copy } from 'lucide-react';
 import { CheckInMap, ReservationData } from '../types';
 import { ASIENTOS_NUMERADOS, EVENTO, METODOS_PAGO } from '../config';
 import { etiquetaEntrada } from '../constants';
@@ -53,6 +53,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [filter, setFilter] = useState<Filter>('pending_approval');
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState<string | null>(null);
   const isAdmin = session?.rol === 'admin';
 
   const load = useCallback(async () => {
@@ -115,11 +116,38 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     if (reason !== null) setStatus(r, 'rejected', reason);
   };
 
+  // Borrar: si la compra no está rechazada, primero se anula (así el servidor permite borrarla)
   const remove = async (r: ReservationData) => {
-    if (!window.confirm(`¿Borrar la compra ${r.locatorCode} de ${r.buyer.fullName}? No se puede deshacer.`)) return;
-    const res = await staffFetch(`/api/reservations/${encodeURIComponent(r.locatorCode.replace('#', ''))}`, { method: 'DELETE' });
+    const anular = r.approvalStatus !== 'rejected';
+    const aviso = anular ? '\n\nSus entradas dejarán de funcionar.' : '';
+    if (!window.confirm(`¿Borrar la compra ${r.locatorCode} de ${r.buyer.fullName}? No se puede deshacer.${aviso}`)) return;
+    const ruta = `/api/reservations/${encodeURIComponent(r.locatorCode.replace('#', ''))}`;
+    setBusy(r.locatorCode);
+    if (anular) {
+      const pre = await staffFetch(`${ruta}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'rejected', reason: 'Compra anulada por el organizador.' }),
+      });
+      if (!pre.ok) {
+        setBusy(null);
+        return window.alert((await pre.json().catch(() => ({})))?.message || 'No se pudo anular la compra.');
+      }
+    }
+    const res = await staffFetch(ruta, { method: 'DELETE' });
+    setBusy(null);
     if (!res.ok) window.alert((await res.json().catch(() => ({})))?.message || 'No se pudo borrar.');
     load();
+  };
+
+  // Copiar el mensaje de la entrada para pegarlo en WhatsApp
+  const copiar = (r: ReservationData) => {
+    navigator.clipboard
+      ?.writeText(ticketMessage(r))
+      .then(() => {
+        setCopiado(r.locatorCode);
+        window.setTimeout(() => setCopiado((c) => (c === r.locatorCode ? null : c)), 2000);
+      })
+      .catch(() => window.alert('No se pudo copiar. Intenta de nuevo.'));
   };
 
   // Contadores
@@ -332,36 +360,45 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       </>
                     )}
                     {r.approvalStatus === 'approved' && (
-                      <a
-                        href={`https://wa.me/${waPhone(r.buyer.phone)}?text=${encodeURIComponent(ticketMessage(r))}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full bg-[#25D366] text-white text-sm font-bold"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        Reenviar entrada
-                      </a>
-                    )}
-                    {r.approvalStatus === 'rejected' && (
                       <>
+                        <a
+                          href={`https://wa.me/${waPhone(r.buyer.phone)}?text=${encodeURIComponent(ticketMessage(r))}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full bg-[#25D366] text-white text-sm font-bold"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Reenviar entrada
+                        </a>
                         <button
                           type="button"
-                          onClick={() => setStatus(r, 'pending_approval')}
+                          onClick={() => copiar(r)}
                           className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-bold cursor-pointer"
                         >
-                          <RotateCcw className="w-4 h-4" />
-                          Reactivar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => remove(r)}
-                          className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full text-red-700 hover:bg-red-50 text-sm font-bold cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Borrar
+                          {copiado === r.locatorCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                          {copiado === r.locatorCode ? 'Copiado' : 'Copiar mensaje'}
                         </button>
                       </>
                     )}
+                    {r.approvalStatus === 'rejected' && (
+                      <button
+                        type="button"
+                        onClick={() => setStatus(r, 'pending_approval')}
+                        className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-bold cursor-pointer"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        Reactivar
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={busy === r.locatorCode}
+                      onClick={() => remove(r)}
+                      className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full text-red-700 hover:bg-red-50 text-sm font-bold cursor-pointer disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Borrar
+                    </button>
                   </div>
                 </li>
               ))}
