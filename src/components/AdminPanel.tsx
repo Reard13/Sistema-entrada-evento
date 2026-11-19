@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { X, LogOut, Check, Ban, MessageCircle, RotateCcw, Trash2, Search, Lock, ScanLine, Wallet, Copy } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { X, LogOut, Check, Ban, MessageCircle, RotateCcw, Trash2, Search, Lock, ScanLine, Wallet, Copy, Download } from 'lucide-react';
 import { CheckInMap, ReservationData } from '../types';
 import { ASIENTOS_NUMERADOS, EVENTO, METODOS_PAGO } from '../config';
 import { etiquetaEntrada } from '../constants';
@@ -56,12 +56,55 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [copiado, setCopiado] = useState<string | null>(null);
   const isAdmin = session?.rol === 'admin';
 
+  // Aviso cuando llega un pago nuevo mientras el panel está abierto
+  const [aviso, setAviso] = useState('');
+  const pendientesAntes = useRef<number | null>(null);
+  const sonar = () => {
+    navigator.vibrate?.([200, 100, 200]);
+    try {
+      const AC = window.AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AC();
+      const o = ctx.createOscillator();
+      o.frequency.value = 880;
+      o.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.4);
+      window.setTimeout(() => ctx.close(), 700);
+    } catch {
+      /* sin sonido disponible */
+    }
+  };
+
   const load = useCallback(async () => {
     if (!readSession()) return;
     const [r, c] = await Promise.all([staffFetch('/api/reservations'), staffFetch('/api/checkins')]);
-    if (r.ok) setReservations((await r.json()).reservations || []);
+    if (r.ok) {
+      const lista: ReservationData[] = (await r.json()).reservations || [];
+      const pendientes = lista.filter((x) => x.approvalStatus === 'pending_approval').length;
+      if (pendientesAntes.current !== null && pendientes > pendientesAntes.current) {
+        const nuevos = pendientes - pendientesAntes.current;
+        setAviso(`Llegó${nuevos > 1 ? 'n' : ''} ${nuevos} pago${nuevos > 1 ? 's' : ''} nuevo${nuevos > 1 ? 's' : ''} por revisar`);
+        sonar();
+      }
+      pendientesAntes.current = pendientes;
+      setReservations(lista);
+    }
     if (c.ok) setCheckIns((await c.json()).checkIns || {});
   }, []);
+
+  // Copia de seguridad de las compras e ingresos (solo administrador)
+  const descargarRespaldo = async () => {
+    const res = await staffFetch('/api/respaldo');
+    if (!res.ok) return window.alert('No se pudo descargar el respaldo. Intenta de nuevo.');
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `respaldo-evento-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 10000);
+  };
 
   // Datos al día: al entrar, con cada aviso en tiempo real y cada 30 s
   useEffect(() => {
@@ -97,7 +140,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     connectRealtime();
   };
 
-  const setStatus = async (r: ReservationData, status: ReservationData['approvalStatus'], reason?: string) => {
+  const setStatus = async (r: ReservationData, status: ReservationData['approvalStatus'], reason?: string, waWin?: Window | null) => {
     setBusy(r.locatorCode);
     const res = await staffFetch(`/api/reservations/${encodeURIComponent(r.locatorCode.replace('#', ''))}/status`, {
       method: 'PATCH',
@@ -105,10 +148,27 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     });
     const data = await res.json().catch(() => ({}));
     setBusy(null);
-    if (!res.ok) return window.alert(data?.message || 'No se pudo guardar.');
+    if (!res.ok) {
+      waWin?.close();
+      return window.alert(data?.message || 'No se pudo guardar.');
+    }
     await load();
-    // Al aprobar, abrir de una vez el chat del comprador con su entrada
-    if (status === 'approved') window.open(`https://wa.me/${waPhone(r.buyer.phone)}?text=${encodeURIComponent(ticketMessage(data.reservation))}`, '_blank', 'noopener');
+    // Al aprobar, el chat del comprador ya está abierto (se abrió en el mismo toque, para que el navegador no lo bloquee)
+    if (status === 'approved') {
+      const url = `https://wa.me/${waPhone(r.buyer.phone)}?text=${encodeURIComponent(ticketMessage(data.reservation))}`;
+      if (waWin) {
+        waWin.opener = null;
+        waWin.location.href = url;
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
+  };
+
+  // Aprobar: se abre la pestaña de WhatsApp dentro del toque y luego se llena con el mensaje
+  const aprobarYEnviar = (r: ReservationData) => {
+    const waWin = window.open('', '_blank');
+    setStatus(r, 'approved', undefined, waWin);
   };
 
   const reject = (r: ReservationData) => {
@@ -121,6 +181,11 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const anular = r.approvalStatus !== 'rejected';
     const aviso = anular ? '\n\nSus entradas dejarán de funcionar.' : '';
     if (!window.confirm(`¿Borrar la compra ${r.locatorCode} de ${r.buyer.fullName}? No se puede deshacer.${aviso}`)) return;
+    // Si la compra estaba activa, ofrecer avisar al comprador por WhatsApp antes de borrarla
+    if (anular && window.confirm('¿Quieres avisarle al comprador por WhatsApp que su compra fue anulada?')) {
+      const texto = `Hola, ${r.buyer.fullName.split(' ')[0]}. Te escribimos de ${EVENTO.nombre}: tu compra ${r.locatorCode} fue anulada y tu entrada ya no es válida. Si tienes dudas, respóndenos por aquí.`;
+      window.open(`https://wa.me/${waPhone(r.buyer.phone)}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer');
+    }
     const ruta = `/api/reservations/${encodeURIComponent(r.locatorCode.replace('#', ''))}`;
     setBusy(r.locatorCode);
     if (anular) {
@@ -269,6 +334,23 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             ))}
           </section>
 
+          {aviso && (
+            <div role="status" className="flex items-center justify-between gap-3 rounded-2xl bg-amber-400 text-oscuro px-4 py-3 font-bold">
+              <span>{aviso}</span>
+              <button type="button" onClick={() => setAviso('')} className="shrink-0 px-3 py-1 rounded-full bg-white/70 text-sm cursor-pointer">
+                Ver
+              </button>
+            </div>
+          )}
+          {isAdmin && (
+            <div className="flex justify-end">
+              <button type="button" onClick={descargarRespaldo} className="inline-flex items-center gap-1.5 min-h-[36px] px-3.5 rounded-full border border-white/25 text-white/85 hover:bg-white/10 text-sm font-semibold cursor-pointer">
+                <Download className="w-4 h-4" />
+                Descargar respaldo
+              </button>
+            </div>
+          )}
+
           {/* Filtros y búsqueda */}
           <section className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <div className="flex flex-wrap gap-1.5">
@@ -342,7 +424,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         <button
                           type="button"
                           disabled={busy === r.locatorCode}
-                          onClick={() => setStatus(r, 'approved')}
+                          onClick={() => aprobarYEnviar(r)}
                           className="inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold cursor-pointer disabled:opacity-50"
                         >
                           <Check className="w-4 h-4" />

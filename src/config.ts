@@ -174,7 +174,7 @@ export const MAPA = {
 };
 
 // Términos y condiciones (se aceptan antes de comprar)
-export const TERMINOS_VERSION = '2027-01-01';
+export const TERMINOS_VERSION = '2026-11-19';
 export const TERMINOS: { titulo: string; puntos: string[] }[] = [
   {
     titulo: 'Compra y pago',

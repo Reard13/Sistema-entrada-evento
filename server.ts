@@ -325,6 +325,14 @@ async function startServer() {
     if (!fullName || phone.replace(/\D/g, '').length < 7 || reference.length < 4) {
       return res.status(400).json({ success: false, message: 'Faltan datos del comprador o del pago.' });
     }
+    // Una misma referencia de pago no puede reportarse en dos compras activas
+    const soloDigitos = (v: string) => v.replace(/\D/g, '') || v.toUpperCase();
+    const repetida = reservas.find(
+      (x) => x.approvalStatus !== 'rejected' && x.paymentReport.method === metodo.id && soloDigitos(x.paymentReport.referenceNumber) === soloDigitos(reference)
+    );
+    if (repetida) {
+      return res.status(409).json({ success: false, message: 'Esa referencia de pago ya fue reportada. Si crees que es un error, escríbenos por WhatsApp.' });
+    }
     const taken = takenSeats();
     const ocupados = seatIds.filter((id) => taken.has(id));
     if (ocupados.length) {
@@ -394,6 +402,13 @@ async function startServer() {
 
   // ---------- Panel administrativo ----------
   app.get('/api/reservations', requireStaff, (_req, res) => res.json({ success: true, reservations: reservas }));
+
+  // Copia de seguridad de todas las compras e ingresos (solo administrador)
+  app.get('/api/respaldo', requireAdmin, (_req, res) => {
+    const fecha = new Date().toISOString().slice(0, 10);
+    res.setHeader('Content-Disposition', `attachment; filename="respaldo-evento-${fecha}.json"`);
+    res.json({ creado: new Date().toISOString(), reservas, ingresos });
+  });
 
   app.patch('/api/reservations/:locator/status', requireAdmin, (req, res) => {
     const r = findReserva(req.params.locator);
