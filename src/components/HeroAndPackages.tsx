@@ -165,7 +165,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
           )}
 
-          <p className="max-w-2xl font-display italic font-medium text-lg sm:text-2xl leading-relaxed text-crema/90 text-pretty">{EVENTO.lema}</p>
+          <p className="max-w-2xl font-display italic font-medium text-[15px] sm:text-lg sm:text-2xl leading-relaxed text-crema/90 whitespace-nowrap sm:whitespace-normal sm:text-pretty">{EVENTO.lema}</p>
 
           {/* Fecha, hora y lugar — teléfono: dos líneas compactas */}
           <div className="sm:hidden flex flex-col items-center gap-1.5 text-[15px] font-medium">
