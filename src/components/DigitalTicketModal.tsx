@@ -18,7 +18,9 @@ interface Props {
 export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUpdate }) => {
   const [images, setImages] = useState<Record<string, string>>({});
   const [bigQr, setBigQr] = useState<{ seat: SelectedSeat; url: string } | null>(null);
-  const [saving, setSaving] = useState(false);
+  // Imágenes listas para guardar: se preparan antes del toque para que el botón guarde al instante
+  const [files, setFiles] = useState<{ blob: Blob; fileName: string }[] | null>(null);
+  const isApproved = reservation?.approvalStatus === 'approved';
 
   // Al cambiar el estado en el servidor (aprobación o rechazo), volver a consultar la compra
   useEffect(() => {
@@ -38,6 +40,24 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
       window.clearInterval(poll);
     };
   }, [reservation, onUpdate]);
+
+  // Generar los archivos PNG de la entrada cuando está aprobada
+  useEffect(() => {
+    if (!reservation || !isApproved) {
+      setFiles(null);
+      return;
+    }
+    let alive = true;
+    Promise.all(
+      reservation.seats.map(async (s) => ({
+        blob: await ticketBlob(reservation, s),
+        fileName: `Entrada_${s.pkg}_${reservation.locatorCode.replace('#', '')}_${s.id}.png`,
+      }))
+    ).then((list) => alive && setFiles(list));
+    return () => {
+      alive = false;
+    };
+  }, [reservation, isApproved]);
 
   // Dibujar cada entrada
   useEffect(() => {
@@ -62,19 +82,10 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
     setBigQr({ seat, url: await QRCode.toDataURL(payload, { width: 720, margin: 2, errorCorrectionLevel: 'M' }) });
   };
 
-  const save = async () => {
-    setSaving(true);
-    try {
-      const items = await Promise.all(
-        reservation.seats.map(async (s) => ({
-          blob: await ticketBlob(reservation, s),
-          fileName: `Entrada_${s.pkg}_${reservation.locatorCode.replace('#', '')}_${s.id}.png`,
-        }))
-      );
-      await saveImages(items, n > 1 ? `Entradas · ${EVENTO.nombre}` : `Entrada · ${EVENTO.nombre}`);
-    } finally {
-      setSaving(false);
-    }
+  // Sin esperas antes de compartir: el menú del teléfono solo se abre en el mismo toque
+  const save = () => {
+    if (!files) return;
+    saveImages(files, n > 1 ? `Entradas · ${EVENTO.nombre}` : `Entrada · ${EVENTO.nombre}`).catch(() => undefined);
   };
 
   return (
@@ -130,14 +141,13 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
         <button
           type="button"
           onClick={save}
-          disabled={!approved || saving}
+          disabled={!approved || !files}
           className="mt-5 w-full min-h-[52px] rounded-full bg-marca hover:bg-marca-oscuro text-white font-bold inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Download className="w-4 h-4" />
-          {saving ? 'Preparando…' : n > 1 ? 'Guardar entradas' : 'Guardar entrada'}
+          {approved && !files ? 'Preparando…' : n > 1 ? 'Guardar entradas' : 'Guardar entrada'}
         </button>
-        {approved && <p className="mt-2 text-center text-xs text-gray-500">En la puerta, toca la entrada para mostrar el QR en grande.</p>}
-      </div>
+        {approved && <p className="mt-2 text-center text-xs text-gray-500">En la puerta, toca la entrada para mostrar el QR en grande.</p>}      </div>
 
       {bigQr && (
         <div role="dialog" aria-label={`QR de ${etiquetaEntrada(bigQr.seat)}`} onClick={() => setBigQr(null)} className="fixed inset-0 z-[3100] flex flex-col items-center justify-center gap-4 p-6 bg-oscuro/95">

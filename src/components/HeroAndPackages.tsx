@@ -434,6 +434,26 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               </details>
             ))}
           </div>
+
+          {/* Recuperar la entrada si no se guardó durante la compra */}
+          <div className="rounded-2xl bg-suave border border-linea p-5 sm:p-6">
+            <h3 className="font-display font-bold text-xl sm:text-2xl text-oscuro">¿No guardaste tu entrada?</h3>
+            <p className="mt-2 text-base leading-relaxed text-[#4A4640]">Puedes volver a buscarla cuando quieras, mientras el pago esté aprobado.</p>
+            <ol className="mt-4 flex flex-col gap-3 text-base leading-relaxed text-[#4A4640] list-decimal list-inside marker:font-bold marker:text-marca-oscuro">
+              <li>
+                Toca <strong className="text-oscuro">Consultar Mi Boleto</strong> en la barra de arriba (en el teléfono, <strong className="text-oscuro">Mi boleto</strong>).
+              </li>
+              <li>
+                Escribe tu <strong className="text-oscuro">localizador</strong> (el código que enviaste por WhatsApp) o el <strong className="text-oscuro">teléfono</strong> con el que compraste.
+              </li>
+              <li>
+                Toca tu compra y luego <strong className="text-oscuro">Guardar entrada</strong>. En el teléfono se abre el menú para guardarla en Fotos o Galería.
+              </li>
+            </ol>
+            <p className="mt-4 text-sm leading-relaxed text-gray-600">
+              Si dice «Pago en revisión», la entrada aparecerá ahí en cuanto el organizador apruebe el pago.
+            </p>
+          </div>
         </div>
       </section>
     </>
