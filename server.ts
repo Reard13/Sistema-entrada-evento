@@ -299,7 +299,13 @@ async function startServer() {
       return { id: seatIds[i], fila, num: Number(num), pkg: 'General' } as Reserva['seats'][number];
     });
     const fullName = clip(b.buyer?.fullName, 80);
-    const phone = clip(b.buyer?.phone, 20);
+    // Teléfonos sin código de país: 584141234567 o +58 414-1234567 se guardan como 04141234567
+    const localPhone = (v: unknown) => {
+      const d = String(v ?? '').replace(/\D/g, '');
+      const local = d.startsWith('58') && d.length === 12 ? '0' + d.slice(2) : d;
+      return clip(local, 20);
+    };
+    const phone = localPhone(b.buyer?.phone);
     const reference = clip(b.paymentReport?.referenceNumber, 40);
     // Método de pago: solo uno de los activos en config.ts (sin dato = Pago Móvil, como antes)
     const metodo = METODOS_PAGO.find((m) => m.activo && m.id === (b.paymentReport?.method || 'pagomovil'));
@@ -339,7 +345,7 @@ async function startServer() {
         method: metodo.id,
         referenceNumber: reference,
         bank: metodo.pideBanco ? clip(b.paymentReport?.bank, 60) : '',
-        payerPhone: clip(b.paymentReport?.payerPhone, 20) || phone,
+        payerPhone: localPhone(b.paymentReport?.payerPhone) || phone,
         reportedAt: now,
       },
       approvalStatus: 'pending_approval',
