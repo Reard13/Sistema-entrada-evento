@@ -163,6 +163,12 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
           {r && <p className="text-lg font-bold">{r.buyer.fullName}</p>}
           {result.status === 'used' && result.at && <p className="font-semibold">Entró a las {hora(result.at)}</p>}
           {result.message && <p className="text-sm text-white/90">{result.message}</p>}
+          {!seat && r && result.status === 'valid' && (
+            <p>
+              <span className="block text-5xl font-extrabold">{r.seats.length}</span>
+              <span className="text-sm font-semibold uppercase tracking-wider text-white/85">{r.seats.length === 1 ? 'entrada' : 'entradas'} en esta compra</span>
+            </p>
+          )}
           {r && r.seats.length > 1 && result.checkIns && result.status !== 'choose_seat' && (
             <p className="text-sm text-white/85">
               Esta compra tiene {r.seats.length} entradas · ingresaron {Object.keys(result.checkIns).length}

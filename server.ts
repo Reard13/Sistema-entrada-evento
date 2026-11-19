@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { ASIENTOS_NUMERADOS, ENTRADAS, METODOS_PAGO, PREFIJO_LOCALIZADOR, QR_GRUPO } from './src/config';
+import { ASIENTOS_NUMERADOS, CAPACIDAD, ENTRADAS, METODOS_PAGO, PREFIJO_LOCALIZADOR, QR_GRUPO } from './src/config';
 import { calcularMontos, Tasas } from './src/utils/montos';
 import { ASIENTOS_VALIDOS, entradasLibres } from './src/constants';
 
@@ -171,7 +171,8 @@ async function getTasas(): Promise<Tasas | null> {
     (await fuenteTasa('https://pydolarve.org/api/v1/dollar?page=bcv', (d) => d?.monitors?.eur?.price)) ||
     tasasCache?.eur ||
     0;
-  if (!usd || !eur) return null;
+  // Solo el euro es obligatorio: el dólar es referencia y no debe bloquear las ventas
+  if (!eur) return null;
   tasasCache = { eur, usd, at: Date.now() };
   return { eur, usd };
 }
@@ -321,7 +322,7 @@ async function startServer() {
     // Método de pago: solo uno de los activos en config.ts (sin dato = Pago Móvil, como antes)
     const metodo = METODOS_PAGO.find((m) => m.activo && m.id === (b.paymentReport?.method || 'pagomovil'));
     if (!metodo) return res.status(400).json({ success: false, message: 'Elige un método de pago válido.' });
-    if (seats.length === 0 || seats.length > 20 || new Set(seatIds).size !== seatIds.length || !seatIds.every((id) => ASIENTOS_VALIDOS.has(id))) {
+    if (seats.length === 0 || seats.length > CAPACIDAD || new Set(seatIds).size !== seatIds.length || !seatIds.every((id) => ASIENTOS_VALIDOS.has(id))) {
       return res.status(400).json({ success: false, message: 'Asientos no válidos.' });
     }
     if (!fullName || phone.replace(/\D/g, '').length < 7 || reference.length < 4) {
@@ -330,7 +331,11 @@ async function startServer() {
     // Una misma referencia de pago no puede reportarse en dos compras activas
     const soloDigitos = (v: string) => v.replace(/\D/g, '') || v.toUpperCase();
     const repetida = reservas.find(
-      (x) => x.approvalStatus !== 'rejected' && x.paymentReport.method === metodo.id && soloDigitos(x.paymentReport.referenceNumber) === soloDigitos(reference)
+      (x) =>
+        x.approvalStatus !== 'rejected' &&
+        x.paymentReport.method === metodo.id &&
+        soloDigitos(x.paymentReport.referenceNumber) === soloDigitos(reference) &&
+        localPhone(x.buyer.phone) === phone
     );
     if (repetida) {
       return res.status(409).json({ success: false, message: 'Esa referencia de pago ya fue reportada. Si crees que es un error, escríbenos por WhatsApp.' });

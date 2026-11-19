@@ -14,7 +14,7 @@ export function formatBs(amount: number): string {
 export function getInitialTasas(): Tasas {
   try {
     const t = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (t && t.eur > 0 && t.usd > 0) return { eur: Number(t.eur), usd: Number(t.usd) };
+    if (t && t.eur > 0) return { eur: Number(t.eur), usd: Number(t.usd) || 0 };
   } catch {
     /* sin almacenamiento */
   }
@@ -28,13 +28,13 @@ export async function fetchLatestTasas(): Promise<Tasas | null> {
     const data = await res.json();
     const eur = Number(data?.rate);
     const usd = Number(data?.usdRate);
-    if (res.ok && eur > 0 && usd > 0) {
+    if (res.ok && eur > 0) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ eur, usd }));
       } catch {
         /* sin almacenamiento */
       }
-      return { eur, usd };
+      return { eur, usd: usd || 0 };
     }
   } catch {
     /* sin conexión */
