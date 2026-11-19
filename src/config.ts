@@ -45,7 +45,7 @@ export const EVENTO = {
 export const PREFIJO_LOCALIZADOR = 'SSF';
 
 // WhatsApp que recibe los reportes de pago (código de país sin «+», ej. 584141234567)
-export const WHATSAPP = '584140000000';
+export const WHATSAPP = '584145891276';
 export const INSTAGRAM = 'sanremosinfronteras'; // sin @. Vacío = no se muestra.
 // Los logos y el nombre del organizador llevan a este perfil
 export const INSTAGRAM_URL = INSTAGRAM ? `https://www.instagram.com/${INSTAGRAM}/` : '';
@@ -70,10 +70,10 @@ export const ENTRADAS = {
 
 // Datos para el Pago Móvil
 export const PAGO_MOVIL = {
-  banco: 'Banco Ejemplo (0000)',
-  telefono: '0414-0000000',
-  documento: 'V00000000',
-  titular: 'Organización Ejemplo',
+  banco: 'Bancamiga',
+  telefono: '0414-5891276',
+  documento: 'V-6914278',
+  titular: 'Andrés Perillo Canciani',
 };
 
 /**
