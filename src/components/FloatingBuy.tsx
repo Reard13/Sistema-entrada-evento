@@ -9,9 +9,11 @@ import { ENTRADAS } from '../config';
  */
 export const FloatingBuy: React.FC<{ hidden: boolean }> = ({ hidden }) => {
   const [heroPassed, setHeroPassed] = useState(false);
+  const [enEntradas, setEnEntradas] = useState(false);
 
   useEffect(() => {
     const hero = document.getElementById('hero-cta');
+    const entradas = document.getElementById('entradas');
     const observers: IntersectionObserver[] = [];
     if (hero) {
       // Solo cuenta como «pasado» cuando el botón de la portada quedó por encima de la pantalla
@@ -19,10 +21,16 @@ export const FloatingBuy: React.FC<{ hidden: boolean }> = ({ hidden }) => {
       o.observe(hero);
       observers.push(o);
     }
+    if (entradas) {
+      // Mientras la sección de entradas está en pantalla, la compra ya está ahí: el botón se oculta
+      const o = new IntersectionObserver(([e]) => setEnEntradas(e.isIntersecting));
+      o.observe(entradas);
+      observers.push(o);
+    }
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
-  const show = !hidden && heroPassed;
+  const show = !hidden && heroPassed && !enEntradas;
 
   return (
     <div
