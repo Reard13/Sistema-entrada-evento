@@ -29,6 +29,7 @@ export const EVENTO = {
   // Logo del organizador (archivos en public/, fondo transparente). Vacío = no se muestra.
   logoMarca: '/marca.png', // con micrófono: portada y pie de página
   logoMarcaTexto: '/marca-texto.png', // solo el nombre: barra superior
+  logoProductora: '/productora.png', // logo de la productora (pie de página, junto al de Sanremo)
 
   // Logo con el título del evento (archivo en public/). Vacío = el nombre escrito en texto.
   logoTitulo: '/titulo.png',

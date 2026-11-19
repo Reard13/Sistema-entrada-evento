@@ -20,15 +20,20 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
       <div className="max-w-6xl mx-auto px-4 py-12 flex flex-col items-start gap-8 text-left">
         <div>
           {/* El logo abre el panel del personal con 5 toques (no es un enlace) */}
-          {EVENTO.logoMarca && (
-            <img
-              src={EVENTO.logoMarca}
-              alt={EVENTO.organizador}
-              onClick={secretTap}
-              draggable={false}
-              className="mb-4 block h-20 w-auto select-none cursor-pointer"
-            />
-          )}
+          <div className="mb-4 flex flex-wrap items-center gap-5">
+            {EVENTO.logoMarca && (
+              <img
+                src={EVENTO.logoMarca}
+                alt={EVENTO.organizador}
+                onClick={secretTap}
+                draggable={false}
+                className="block h-20 w-auto select-none cursor-pointer"
+              />
+            )}
+            {EVENTO.logoProductora && (
+              <img src={EVENTO.logoProductora} alt="Perillo Roig Producciones" className="block h-12 w-auto select-none" />
+            )}
+          </div>
           {INSTAGRAM_URL ? (
             <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="block w-fit font-display font-bold text-xl sm:text-2xl hover:underline underline-offset-4">
               {EVENTO.nombre}
