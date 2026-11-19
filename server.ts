@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { ASIENTOS_NUMERADOS, ENTRADAS, METODOS_PAGO, PREFIJO_LOCALIZADOR } from './src/config';
+import { ASIENTOS_NUMERADOS, ENTRADAS, METODOS_PAGO, PREFIJO_LOCALIZADOR, QR_GRUPO } from './src/config';
 import { calcularMontos, Tasas } from './src/utils/montos';
 import { ASIENTOS_VALIDOS, entradasLibres } from './src/constants';
 
@@ -212,6 +212,8 @@ async function startServer() {
   const publicView = (r: Reserva) => ({
     ...r,
     qr: r.approvalStatus === 'approved' ? Object.fromEntries(r.seats.map((s) => [s.id, qrSig(r.locatorCode, s.id)])) : undefined,
+    // QR único de la compra: lo que se muestra al comprador
+    qrGrupo: r.approvalStatus === 'approved' ? qrSig(r.locatorCode, QR_GRUPO) : undefined,
   });
 
   const takenSeats = (except?: string) => {
@@ -461,6 +463,21 @@ async function startServer() {
     }
     const r = findReserva(loc);
     if (!r) return res.json({ success: true, status: 'not_found', message: 'No existe una compra con ese localizador.' });
+    // QR de la compra completa (o localizador escrito a mano): valida todas sus entradas de una vez
+    if (!seatId || seatId === QR_GRUPO) {
+      if (r.approvalStatus !== 'approved') {
+        return res.json({ success: true, status: r.approvalStatus === 'rejected' ? 'rejected' : 'pending', reservation: r, seatId: QR_GRUPO });
+      }
+      const ya = ingresosDe(r);
+      if (Object.keys(ya).length > 0) {
+        return res.json({ success: true, status: 'used', reservation: r, seatId: QR_GRUPO, at: Math.min(...Object.values(ya)), checkIns: ya });
+      }
+      const ahora = Date.now();
+      for (const s of r.seats) ingresos[ingresoKey(r.locatorCode, s.id)] = { at: ahora, seatId: s.id, locator: r.locatorCode, name: r.buyer.fullName };
+      saveIngresos();
+      broadcast('ingresos');
+      return res.json({ success: true, status: 'valid', reservation: r, seatId: QR_GRUPO, at: ahora, checkIns: ingresosDe(r) });
+    }
     const seat = r.seats.find((s) => s.id === seatId);
     if (!seat) return res.json({ success: true, status: 'choose_seat', reservation: r, checkIns: ingresosDe(r) });
     if (r.approvalStatus !== 'approved') {
@@ -480,13 +497,18 @@ async function startServer() {
 
   // Anular un ingreso registrado por error: el administrador siempre, la puerta solo los de los últimos 30 minutos
   app.post('/api/checkin/undo', requireStaff, (req, res) => {
-    const key = ingresoKey(clip(req.body?.locator, 40), clip(req.body?.seatId, 10).toUpperCase());
-    const ing = ingresos[key];
-    if (!ing) return res.status(404).json({ success: false, message: 'Ese ingreso no está registrado.' });
-    if (sessionOf(req)?.rol !== 'admin' && Date.now() - ing.at > 30 * 60 * 1000) {
+    const loc = clip(req.body?.locator, 40);
+    const seatId = clip(req.body?.seatId, 10).toUpperCase();
+    // Anulación de la compra completa: todas sus entradas
+    const keys = seatId === QR_GRUPO
+      ? (findReserva(loc)?.seats ?? []).map((s) => ingresoKey(loc, s.id)).filter((k) => ingresos[k])
+      : [ingresoKey(loc, seatId)].filter((k) => ingresos[k]);
+    if (keys.length === 0) return res.status(404).json({ success: false, message: 'Ese ingreso no está registrado.' });
+    const primero = Math.min(...keys.map((k) => ingresos[k].at));
+    if (sessionOf(req)?.rol !== 'admin' && Date.now() - primero > 30 * 60 * 1000) {
       return res.status(403).json({ success: false, message: 'Tiene más de 30 minutos: solo el administrador puede anularlo.' });
     }
-    delete ingresos[key];
+    for (const k of keys) delete ingresos[k];
     saveIngresos();
     broadcast('ingresos');
     return res.json({ success: true });

@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { ASIENTOS_NUMERADOS, COLORES, EVENTO, PREFIJO_LOCALIZADOR } from '../config';
+import { ASIENTOS_NUMERADOS, COLORES, EVENTO, PREFIJO_LOCALIZADOR, QR_GRUPO } from '../config';
 import { ReservationData, SelectedSeat } from '../types';
 import { canvasToPngBlob } from './saveImage';
 
@@ -11,9 +11,9 @@ export const TICKET_W = 1800;
 export const TICKET_H = 720;
 const STUB_X = 1340;
 
-// Contenido del QR: PREFIJO|LOCALIZADOR|ASIENTO|FIRMA (la firma la entrega el servidor al aprobar)
-export const qrPayload = (r: ReservationData, seatId: string) =>
-  r.qr?.[seatId] ? `${PREFIJO_LOCALIZADOR}|${r.locatorCode.replace(/^#/, '').split('-').pop()}|${seatId}|${r.qr[seatId]}` : null;
+// Contenido del QR de la compra: PREFIJO|LOCALIZADOR|TODAS|FIRMA (la firma la entrega el servidor al aprobar)
+export const qrPayload = (r: ReservationData) =>
+  r.qrGrupo ? `${PREFIJO_LOCALIZADOR}|${r.locatorCode.replace(/^#/, '').split('-').pop()}|${QR_GRUPO}|${r.qrGrupo}` : null;
 
 const loadImage = (src: string) =>
   new Promise<HTMLImageElement>((ok, fail) => {
@@ -204,7 +204,7 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   ctx.roundRect(cx - qrSize / 2 - 18, qrY - 18, qrSize + 36, qrSize + 36, 24);
   ctx.fill();
   ctx.stroke();
-  const payload = r.approvalStatus === 'approved' ? qrPayload(r, seat.id) : null;
+  const payload = r.approvalStatus === 'approved' ? qrPayload(r) : null;
   if (payload) {
     const url = await QRCode.toDataURL(payload, { width: 600, margin: 0, errorCorrectionLevel: 'M', color: { dark: '#0B100D', light: '#FFFFFF' } });
     ctx.drawImage(await loadImage(url), cx - qrSize / 2, qrY, qrSize, qrSize);
@@ -233,12 +233,13 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
     ctx.fillText(seat.fila, cx - 90, 600);
     ctx.fillText(String(seat.num), cx + 90, 600);
   } else {
-    spaced(ctx, 'ENTRADA N°', cx, 500, 6, 'center');
+    // Una sola entrada por compra: se indica cuántas entradas incluye el QR
+    spaced(ctx, r.seats.length > 1 ? 'ENTRADAS' : 'ENTRADA', cx, 500, 6, 'center');
     ctx.fillStyle = COLORES.fondoOscuro;
     // Cifras en Jost: las de Playfair en canvas salen «antiguas» (el 3 y el 5 bajan de la línea)
     ctx.font = '700 96px "Jost", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(String(seat.num), cx, 606);
+    ctx.fillText(String(r.seats.length), cx, 606);
   }
 
   return c;

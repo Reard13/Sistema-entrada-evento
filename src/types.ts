@@ -33,6 +33,8 @@ export interface ReservationData {
   rejectionReason?: string;
   // bcvRate = bolívares por € usados para cobrar; usdRate = bolívares por $ (referencia)
   bcvRate: number;
+  // QR único de la compra (solo cuando está aprobada)
+  qrGrupo?: string;
   usdRate?: number;
   totalEur?: number; // compras nuevas; las anteriores solo tienen totalUsd
   totalUsd: number;

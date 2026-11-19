@@ -43,6 +43,8 @@ export const EVENTO = {
 
 // Prefijo del localizador de cada compra (ej. #EVT-12345678)
 export const PREFIJO_LOCALIZADOR = 'SSF';
+// Un solo QR por compra: al escanearlo entran todas sus entradas
+export const QR_GRUPO = 'TODAS';
 
 // WhatsApp que recibe los reportes de pago (código de país sin «+», ej. 584141234567)
 export const WHATSAPP = '584145891276';
