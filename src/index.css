@@ -145,6 +145,8 @@ body {
 /* Portada con foto: viñeta oscura para que el logo y el texto se lean */
 .hero-foto {
   background:
+    radial-gradient(60% 70% at 20% 0%, rgb(37 99 235 / 0.30) 0%, transparent 60%),
+    radial-gradient(60% 70% at 80% 0%, rgb(37 99 235 / 0.26) 0%, transparent 60%),
     radial-gradient(120% 80% at 50% 30%,
       color-mix(in oklab, var(--fondo-oscuro) 55%, transparent) 0%,
       color-mix(in oklab, var(--fondo-oscuro) 88%, transparent) 60%,
