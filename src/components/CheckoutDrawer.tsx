@@ -240,7 +240,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               Elige cómo pagar
             </h3>
             {metodos.length > 1 && (
-              <div role="radiogroup" aria-label="Método de pago" className="mt-3 grid grid-cols-3 gap-1.5">
+              <div role="radiogroup" aria-label="Método de pago" className="mt-3 grid grid-cols-2 gap-1.5">
                 {metodos.map((m) => (
                   <button
                     key={m.id}

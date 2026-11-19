@@ -54,7 +54,7 @@ const Eyebrow: React.FC<{ className?: string; children: React.ReactNode }> = ({ 
   <span className={`text-xs sm:text-[13px] font-semibold tracking-[0.28em] uppercase ${className}`}>{children}</span>
 );
 
-// Lista legible de los métodos activos: «Pago Móvil, Zelle o Binance Pay (USDT)»
+// Lista legible de los métodos activos: «Pago Móvil o Transferencia bancaria»
 const nombresMetodos = (() => {
   const n = METODOS_PAGO.filter((m) => m.activo).map((m) => m.nombre);
   return n.length > 1 ? `${n.slice(0, -1).join(', ')} o ${n[n.length - 1]}` : n[0] ?? '';
