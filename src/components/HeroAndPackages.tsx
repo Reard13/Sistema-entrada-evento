@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
-import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, INSTAGRAM_URL, MAX_POR_COMPRA, METODOS_PAGO, TERMINOS } from '../config';
+import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, INSTAGRAM_URL, METODOS_PAGO, TERMINOS } from '../config';
 import { PackageType } from '../types';
 import { calcularMontos, Tasas } from '../utils/montos';
 import { formatBs } from '../utils/exchangeRate';
@@ -117,7 +117,7 @@ function useTear(compraAbierta: boolean) {
 export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuyQuantity, onOpenLookup, disponibles, compraAbierta }) => {
   const { stubRef, bodyRef, tear } = useTear(compraAbierta);
   const [cantidad, setCantidad] = useState(1);
-  const maximo = Math.max(0, Math.min(MAX_POR_COMPRA, disponibles));
+  const maximo = Math.max(0, disponibles);
   const cant = Math.max(1, Math.min(cantidad, maximo || 1));
   const { done, parts } = useCountdown(new Date(EVENTO.fechaISO).getTime());
   const precio = ENTRADAS.General.precio;
@@ -127,7 +127,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
 
 
   const pasos = [
-    [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El precio está en euros. Debajo verás el equivalente en bolívares y en dólares.'],
+    [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El precio está en euros. Debajo verás el equivalente en bolívares.'],
     ['Paga y reporta', `Paga por ${nombresMetodos} y envía la referencia por WhatsApp desde la misma página.`],
     ['Recibe tu QR', 'Al verificar el pago, tu entrada con código QR queda lista en «Mi boleto».'],
   ];
@@ -276,7 +276,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
               </div>
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="font-display font-bold text-6xl sm:text-7xl leading-none text-oscuro">€{precio}</span>
-                <span className="text-base sm:text-lg font-medium text-cafe">≈ Bs. {formatBs(unitario.bs)}{unitario.usd > 0 && ` · $${unitario.usd.toFixed(2)}`}</span>
+                <span className="text-base sm:text-lg font-medium text-cafe">≈ Bs. {formatBs(unitario.bs)}</span>
               </p>
               <ul className="flex flex-col gap-2.5">
                 {general.beneficios.map((b) => (
@@ -338,7 +338,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
                     <span className="text-sm tracking-[0.16em] uppercase text-cafe">Total</span>
                     <span className="text-right">
                       <span className="block font-display font-bold text-3xl sm:text-4xl text-oscuro tabular-nums">€{total.eur}</span>
-                      <span className="block text-sm font-medium text-cafe">Bs. {formatBs(total.bs)}{total.usd > 0 && ` · $${total.usd.toFixed(2)}`}</span>
+                      <span className="block text-sm font-medium text-cafe">Bs. {formatBs(total.bs)}</span>
                     </span>
                   </div>
                   <button

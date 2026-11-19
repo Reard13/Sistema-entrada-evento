@@ -139,7 +139,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
               {selectedSeats.length} {selectedSeats.length === 1 ? 'asiento' : 'asientos'}
               {selectedSeats.length > 0 && <span className="ml-2 tabular-nums">€{montos.eur}</span>}
             </p>
-            {selectedSeats.length > 0 && <p className="text-sm font-semibold text-white/80 tabular-nums whitespace-nowrap">Bs. {formatBs(montos.bs)}{montos.usd > 0 && ` · $${montos.usd.toFixed(2)}`}</p>}
+            {selectedSeats.length > 0 && <p className="text-sm font-semibold text-white/80 tabular-nums whitespace-nowrap">Bs. {formatBs(montos.bs)}</p>}
             {selectedSeats.length > 0 && <p className="text-xs text-white/70 truncate">{selectedSeats.map((s) => `${s.id} (${s.pkg})`).join(', ')}</p>}
           </div>
           <button

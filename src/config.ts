@@ -143,8 +143,6 @@ export const TASA_BCV_RESPALDO = 100;
 export const ASIENTOS_NUMERADOS = false;
 // Entradas a la venta cuando no hay asientos numerados (aforo del lugar)
 export const CAPACIDAD = 150;
-// Máximo de entradas en una sola compra
-export const MAX_POR_COMPRA = 10;
 
 /**
  * Mapa de asientos (solo con ASIENTOS_NUMERADOS = true): secciones con sus filas.

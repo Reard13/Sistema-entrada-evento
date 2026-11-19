@@ -257,7 +257,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               [
                 ['Entradas vendidas', String(stats.sold), 'aprobadas'],
                 ['Por revisar', String(stats.pending), stats.pending === 1 ? 'pago' : 'pagos'],
-                ['Recaudado', `€${stats.eur}`, `Bs. ${formatBs(stats.bs)} · $${stats.usd.toFixed(2)}`],
+                ['Recaudado', `€${stats.eur}`, `Bs. ${formatBs(stats.bs)}`],
                 ['Ingresaron', String(stats.entered), `de ${stats.sold}`],
               ] as [string, string, string][]
             ).map(([label, value, sub]) => (
@@ -330,7 +330,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     <p>
                       <span className="block text-xs text-gray-500">Monto</span>
                       <span className="font-semibold tabular-nums">
-                        {r.totalEur !== undefined && `€${r.totalEur} · `}Bs. {formatBs(r.totalBs)} · ${r.totalUsd.toFixed(2)}
+                        {r.totalEur !== undefined && `€${r.totalEur} · `}Bs. {formatBs(r.totalBs)}
                       </span>
                     </p>
                   </div>

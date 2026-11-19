@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { ASIENTOS_NUMERADOS, ENTRADAS, MAX_POR_COMPRA, METODOS_PAGO, PREFIJO_LOCALIZADOR } from './src/config';
+import { ASIENTOS_NUMERADOS, ENTRADAS, METODOS_PAGO, PREFIJO_LOCALIZADOR } from './src/config';
 import { calcularMontos, Tasas } from './src/utils/montos';
 import { ASIENTOS_VALIDOS, entradasLibres } from './src/constants';
 
@@ -289,8 +289,8 @@ async function startServer() {
     // Sin asientos numerados el servidor asigna las primeras entradas libres (lo que mande el navegador solo cuenta como cantidad)
     if (!ASIENTOS_NUMERADOS) {
       const cantidad = Array.isArray(b.seats) ? b.seats.length : 0;
-      if (cantidad < 1 || cantidad > MAX_POR_COMPRA) {
-        return res.status(400).json({ success: false, message: `Puedes comprar de 1 a ${MAX_POR_COMPRA} entradas por compra.` });
+      if (cantidad < 1) {
+        return res.status(400).json({ success: false, message: 'Elige al menos una entrada.' });
       }
       const libres = entradasLibres(takenSeats(), cantidad);
       if (libres.length < cantidad) {

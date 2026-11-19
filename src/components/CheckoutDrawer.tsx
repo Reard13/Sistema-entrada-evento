@@ -114,8 +114,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       `${ASIENTOS_NUMERADOS ? (r.seats.length === 1 ? 'Asiento' : `Asientos (${r.seats.length})`) : r.seats.length === 1 ? 'Entrada' : `Entradas (${r.seats.length})`}: ${seatsLine}\n\n` +
       `${metodo.nombre} · Ref. *${reference}*${bank ? ` · ${bank}` : ''}${payerLine}\n` +
       (enBs
-        ? `Monto: *Bs. ${formatBs(r.totalBs)}* (€${r.totalEur ?? ''} · $${r.totalUsd.toFixed(2)})\n\n`
-        : `Monto: *$${r.totalUsd.toFixed(2)}* (€${r.totalEur ?? ''})\n\n`) +
+        ? `Monto: *Bs. ${formatBs(r.totalBs)}* (€${r.totalEur ?? ''})\n\n`
+        : `Monto: *€${r.totalEur ?? ''}*\n\n`) +
       `Por favor verifiquen el pago para liberar mi QR. ¡Gracias!`;
     const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMsg)}`;
 
@@ -208,12 +208,9 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               </div>
               <div className="text-right shrink-0">
                 <span className="block text-2xl font-bold text-marca-oscuro leading-none tabular-nums">
-                  {enBs ? `Bs. ${formatBs(montos.bs)}` : `$${montos.usd.toFixed(2)}`}
+                  Bs. {formatBs(montos.bs)}
                 </span>
-                <span className="block text-xs font-bold text-gray-500 mt-1">
-                  €{montos.eur}
-                  {enBs && montos.usd > 0 && ` · $${montos.usd.toFixed(2)}`}
-                </span>
+                <span className="block text-xs font-bold text-gray-500 mt-1">€{montos.eur}</span>
               </div>
             </div>
           </section>
