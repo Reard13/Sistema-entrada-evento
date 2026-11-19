@@ -114,7 +114,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       `${ASIENTOS_NUMERADOS ? (r.seats.length === 1 ? 'Asiento' : `Asientos (${r.seats.length})`) : r.seats.length === 1 ? 'Entrada' : `Entradas (${r.seats.length})`}: ${seatsLine}\n\n` +
       `${metodo.nombre} · Ref. *${reference}*${bank ? ` · ${bank}` : ''}${payerLine}\n` +
       (enBs
-        ? `Monto: *Bs. ${formatBs(r.totalBs)}* (€${r.totalEur ?? ''} · $${r.totalUsd.toFixed(2)}) · Tasa €${formatBs(r.bcvRate)}\n\n`
+        ? `Monto: *Bs. ${formatBs(r.totalBs)}* (€${r.totalEur ?? ''} · $${r.totalUsd.toFixed(2)})\n\n`
         : `Monto: *$${r.totalUsd.toFixed(2)}* (€${r.totalEur ?? ''})\n\n`) +
       `Por favor verifiquen el pago para liberar mi QR. ¡Gracias!`;
     const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMsg)}`;

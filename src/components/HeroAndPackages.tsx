@@ -127,7 +127,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
 
 
   const pasos = [
-    [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El precio está en euros. Los bolívares se calculan con la tasa BCV del euro del día, y el dólar aparece como referencia.'],
+    [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El precio está en euros. Debajo verás el equivalente en bolívares y en dólares.'],
     ['Paga y reporta', `Paga por ${nombresMetodos} y envía la referencia por WhatsApp desde la misma página.`],
     ['Recibe tu QR', 'Al verificar el pago, tu entrada con código QR queda lista en «Mi boleto».'],
   ];
@@ -355,7 +355,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
               <div aria-hidden="true" className="hidden md:block mt-1 h-10 rounded-sm opacity-80 [background:repeating-linear-gradient(90deg,#0b100d_0_2px,transparent_2px_4px,#0b100d_4px_5px,transparent_5px_9px,#0b100d_9px_12px,transparent_12px_14px)]" />
             </div>
           </div>
-          <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en euros. Tasa BCV del día: {formatBs(tasas.eur)} Bs/€{tasas.usd > 0 && ` · ${formatBs(tasas.usd)} Bs/$`}.</p>
+          <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en euros. Los montos en bolívares se calculan el día de tu compra.</p>
 
           {/* Cómo comprar: pasos junto a la compra */}
           <div className="w-full pt-6 sm:pt-8 border-t border-oro/15 flex flex-col gap-6">

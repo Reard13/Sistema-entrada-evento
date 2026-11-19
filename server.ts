@@ -341,7 +341,7 @@ async function startServer() {
     const clientUsd = Number(b.usdRate) || 0;
     const serverTasas = await getTasas();
     if (!serverTasas && !clientEur) {
-      return res.status(503).json({ success: false, message: 'No pudimos consultar la tasa del euro. Intenta de nuevo en unos minutos.' });
+      return res.status(503).json({ success: false, message: 'No pudimos calcular el monto en este momento. Intenta de nuevo en unos minutos.' });
     }
     const eurRate = serverTasas && (!clientEur || Math.abs(clientEur - serverTasas.eur) / serverTasas.eur > 0.05) ? serverTasas.eur : clientEur;
     const usdRate = serverTasas?.usd || clientUsd;

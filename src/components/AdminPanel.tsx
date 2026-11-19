@@ -332,10 +332,6 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       <span className="font-semibold tabular-nums">
                         {r.totalEur !== undefined && `€${r.totalEur} · `}Bs. {formatBs(r.totalBs)} · ${r.totalUsd.toFixed(2)}
                       </span>
-                      <span className="block text-gray-600">
-                        Tasa €{formatBs(r.bcvRate)}
-                        {r.usdRate ? ` · Tasa $${formatBs(r.usdRate)}` : ''}
-                      </span>
                     </p>
                   </div>
                   {r.approvalStatus === 'rejected' && r.rejectionReason && <p className="mt-2 text-sm text-red-700">Motivo: {r.rejectionReason}</p>}

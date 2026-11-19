@@ -182,7 +182,7 @@ export const TERMINOS: { titulo: string; puntos: string[] }[] = [
     titulo: 'Compra y pago',
     puntos: [
       'La entrada queda confirmada cuando el organizador verifica el pago.',
-      'El precio está en euros. El monto en bolívares se calcula con la tasa BCV del euro del día de la compra.',
+      'El precio está en euros. El monto en bolívares se calcula el día de la compra.',
     ],
   },
   {
