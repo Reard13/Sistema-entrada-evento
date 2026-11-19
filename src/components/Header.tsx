@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy })
           className="inline-flex items-center gap-1.5 min-h-[44px] px-3 sm:px-4 rounded-full text-sm sm:text-[15px] font-medium text-crema hover:bg-white/10 cursor-pointer"
         >
           <Search className="w-4 h-4" />
-          <span className="hidden sm:inline">Consultar Mi Boleto</span>
+          <span className="hidden sm:inline">Consultar mi boleto</span>
           <span className="sm:hidden">Mi boleto</span>
         </button>
       </nav>

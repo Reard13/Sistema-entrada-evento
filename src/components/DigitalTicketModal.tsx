@@ -108,7 +108,7 @@ export const DigitalTicketModal: React.FC<Props> = ({ reservation, onClose, onUp
           <div className="mt-4 flex gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-amber-900">
             <Clock className="w-5 h-5 shrink-0 mt-0.5" />
             <p className="text-sm">
-              <strong>Pago en revisión.</strong> Cuando el organizador lo apruebe, el QR aparecerá aquí. Puedes volver a verlo desde «Consultar Mi Boleto».
+              <strong>Pago en revisión.</strong> Cuando el organizador lo apruebe, el QR aparecerá aquí. Puedes volver a verlo desde «Consultar mi boleto».
             </p>
           </div>
         )}

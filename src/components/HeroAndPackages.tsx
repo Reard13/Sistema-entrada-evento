@@ -129,7 +129,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
   const pasos = [
     [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El precio está en euros. Debajo verás el equivalente en bolívares.'],
     ['Paga y reporta', `Paga por ${nombresMetodos} y envía la referencia por WhatsApp desde la misma página.`],
-    ['Recibe tu QR', 'Al verificar el pago, tu entrada con código QR queda lista en «Mi boleto».'],
+    ['Recibe tu QR', 'Al verificar el pago, tu entrada con código QR queda lista en «mi boleto».'],
   ];
 
   return (
@@ -168,7 +168,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] text-balance">{EVENTO.nombre}</h1>
           )}
 
-          <p className="max-w-2xl font-display italic font-medium text-[15px] sm:text-lg sm:text-2xl leading-relaxed text-crema/90 whitespace-nowrap sm:whitespace-normal sm:text-pretty">{EVENTO.lema}</p>
+          <p className="max-w-2xl font-display italic font-medium text-[15px] sm:text-lg sm:text-2xl leading-relaxed text-crema/90 text-balance">{EVENTO.lema}</p>
 
           {/* Fecha, hora y lugar — teléfono: dos líneas compactas */}
           <div className="sm:hidden flex flex-col items-center gap-1.5 text-[15px] font-medium">
@@ -445,7 +445,7 @@ export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuy
                 <p>Puedes volver a buscarla cuando quieras, mientras el pago esté aprobado.</p>
                 <ol className="flex flex-col gap-3 list-decimal list-inside marker:font-bold marker:text-marca-oscuro">
                   <li>
-                    Toca <strong className="text-oscuro">Consultar Mi Boleto</strong> en la barra de arriba (en el teléfono, <strong className="text-oscuro">Mi boleto</strong>).
+                    Toca <strong className="text-oscuro">Consultar mi boleto</strong> en la barra de arriba (en el teléfono, <strong className="text-oscuro">mi boleto</strong>).
                   </li>
                   <li>
                     Escribe tu <strong className="text-oscuro">localizador</strong> (el código que enviaste por WhatsApp) o el <strong className="text-oscuro">teléfono</strong> con el que compraste.

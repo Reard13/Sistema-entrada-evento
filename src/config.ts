@@ -8,9 +8,9 @@
 export const EVENTO = {
   nombre: 'Sanremo Sin Fronteras canta la Navidad',
   edicion: '2026',
-  lema: 'Las mejores canciones navideñas internacionales',
+  lema: 'Las mejores canciones sacras de Navidad y de repertorio internacional',
   descripcion:
-    'Las mejores canciones navideñas internacionales, interpretadas por el elenco de Sanremo Sin Fronteras.',
+    'Las mejores canciones sacras de Navidad y de repertorio internacional, interpretadas por el elenco de Sanremo Sin Fronteras.',
   organizador: 'Sanremo Sin Fronteras',
   // Titular de la sección «El concierto»
   titularConcierto: 'Una noche para cantar la Navidad juntos',

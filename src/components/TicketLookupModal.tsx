@@ -53,7 +53,7 @@ export const TicketLookupModal: React.FC<Props> = ({ isOpen, onClose, onSelectRe
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 id="lookup-title" className="text-xl font-extrabold text-oscuro">
-              Consultar Mi Boleto
+              Consultar mi boleto
             </h2>
             <p className="mt-1 text-sm text-gray-600">Escribe tu localizador o el teléfono con el que compraste.</p>
           </div>
