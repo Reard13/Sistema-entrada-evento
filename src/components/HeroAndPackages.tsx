@@ -270,9 +270,6 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                     <span className="font-display font-bold text-xl sm:text-2xl leading-tight text-oscuro text-balance">{EVENTO.nombre}</span>
                   )}
                 </div>
-                <span className="shrink-0 px-3 py-1.5 rounded-full bg-[#E6E0D3] text-marca-oscuro text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
-                  Admisión general
-                </span>
               </div>
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="font-display font-bold text-6xl sm:text-7xl leading-none text-oscuro">${precio}</span>
@@ -294,7 +291,6 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
 
             {/* Lado de la compra */}
             <div ref={stubRef} className="relative z-0 will-change-transform md:w-[340px] md:shrink-0 min-w-0 px-5 py-4 sm:p-10 flex flex-col justify-center gap-3 sm:gap-5 bg-white">
-              <span className="hidden md:block text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-cafe">Talón · tu compra</span>
               {ASIENTOS_NUMERADOS ? (
                 <button
                   type="button"
