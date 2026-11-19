@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Ticket } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { EVENTO, INSTAGRAM_URL } from '../config';
 
 interface HeaderProps {
@@ -38,14 +38,6 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, onOpenLookup, onBuy })
           <Search className="w-4 h-4" />
           <span className="hidden sm:inline">Consultar Mi Boleto</span>
           <span className="sm:hidden">Mi boleto</span>
-        </button>
-        <button
-          type="button"
-          onClick={onBuy}
-          className="inline-flex items-center gap-1.5 min-h-[44px] px-4 sm:px-5 rounded-full bg-marca hover:bg-marca-oscuro text-white text-sm sm:text-[15px] font-semibold cursor-pointer"
-        >
-          <Ticket className="w-4 h-4" />
-          Comprar
         </button>
       </nav>
     </div>

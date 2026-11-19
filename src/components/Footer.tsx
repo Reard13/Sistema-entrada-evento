@@ -36,11 +36,7 @@ export const Footer: React.FC<{ onOpenPanel: () => void }> = ({ onOpenPanel }) =
           ) : (
             <p className="block font-display font-bold text-xl sm:text-2xl">{EVENTO.nombre}</p>
           )}
-          <p className="mt-2 text-[15px] leading-relaxed text-tenue">
-            {EVENTO.fechaTexto} · {EVENTO.horaTexto}
-            <br />
-            {EVENTO.lugar}, {EVENTO.ciudad}
-          </p>
+          <p className="mt-2 text-[15px] leading-relaxed text-tenue">{EVENTO.ciudad}</p>
         </div>
         <div className="flex flex-col items-start gap-3 text-[15px]">
           <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-medium text-oro hover:text-white hover:underline">

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Calendar, Clock, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
+import { Calendar, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
 import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, INSTAGRAM_URL, MAX_POR_COMPRA, METODOS_PAGO, TERMINOS } from '../config';
 import { PackageType } from '../types';
 import { formatBs } from '../utils/exchangeRate';
@@ -274,20 +274,6 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                   Admisión general
                 </span>
               </div>
-              <dl className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                <div className="flex flex-col gap-0.5 min-w-0">
-                  <dt className="text-[11px] tracking-[0.18em] uppercase text-cafe">Fecha</dt>
-                  <dd className="font-semibold">{EVENTO.fechaCorta}</dd>
-                </div>
-                <div className="flex flex-col gap-0.5 min-w-0 pl-3 border-l border-[#DDD7CB]">
-                  <dt className="text-[11px] tracking-[0.18em] uppercase text-cafe">Hora</dt>
-                  <dd className="font-semibold">{EVENTO.horaTexto}</dd>
-                </div>
-                <div className="col-span-2 sm:col-span-1 flex flex-col gap-0.5 min-w-0 pt-3 sm:pt-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-[#DDD7CB]">
-                  <dt className="text-[11px] tracking-[0.18em] uppercase text-cafe">Lugar</dt>
-                  <dd className="font-semibold leading-snug">{EVENTO.lugar}</dd>
-                </div>
-              </dl>
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="font-display font-bold text-6xl sm:text-7xl leading-none text-oscuro">${precio}</span>
                 <span className="text-base sm:text-lg font-medium text-cafe">≈ Bs. {formatBs(precio * bcvRate)}</span>
@@ -399,8 +385,17 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
             <Eyebrow className="text-marca">El concierto</Eyebrow>
             <h2 className="font-display font-bold text-3xl sm:text-5xl leading-tight text-oscuro text-balance">{EVENTO.titularConcierto}</h2>
             <p className="text-lg sm:text-xl leading-relaxed text-[#4A4640] text-pretty">
-              {conEnlace(EVENTO.descripcion.replace(/\.$/, ''))} en {EVENTO.lugar}.
+              {conEnlace('Interpretadas por el elenco de Sanremo Sin Fronteras.')}
             </p>
+            <div className="w-full aspect-[16/9] overflow-hidden rounded-2xl">
+              <img
+                src={EVENTO.fotoPortada}
+                alt="Vitral y altar de la Iglesia Prados del Este"
+                className="w-full h-full object-cover"
+                style={{ objectPosition: '62% 30%' }}
+                loading="lazy"
+              />
+            </div>
           </div>
           <div className="flex-[1_1_320px] min-w-0 bg-white border border-linea rounded-[20px] p-6 sm:p-7 flex flex-col gap-4">
             <span className="text-marca" aria-hidden="true"><MapPin className="w-8 h-8" strokeWidth={1.6} /></span>
@@ -409,10 +404,6 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               <span className="text-xl font-semibold">{EVENTO.lugar}</span>
               <span className="text-base text-[#4A4640]">{EVENTO.ciudad}</span>
             </div>
-            <span className="inline-flex items-center gap-2 text-base text-[#4A4640]">
-              <Clock className="w-4 h-4 text-marca" aria-hidden="true" />
-              {EVENTO.fechaTexto} · {EVENTO.horaTexto}
-            </span>
             {EVENTO.mapaUrl && (
               <a
                 href={EVENTO.mapaUrl}
