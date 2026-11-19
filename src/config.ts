@@ -31,7 +31,7 @@ export const EVENTO = {
   logoMarcaTexto: '/marca-texto.png', // solo el nombre: barra superior
 
   // Logo con el título del evento (archivo en public/). Vacío = el nombre escrito en texto.
-  logoTitulo: '/titulo.svg',
+  logoTitulo: '/titulo.png',
 
   // Foto de fondo de la portada (archivo en public/). Vacío = fondo de color.
   fotoPortada: '/portada.webp',
