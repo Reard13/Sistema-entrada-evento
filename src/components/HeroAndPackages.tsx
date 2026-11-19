@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, MapPin, Check, ArrowRight, Minus, Plus, ChevronDown } from 'lucide-react';
 import { ASIENTOS_NUMERADOS, EVENTO, ENTRADAS, INSTAGRAM_URL, MAX_POR_COMPRA, METODOS_PAGO, TERMINOS } from '../config';
 import { PackageType } from '../types';
+import { calcularMontos, Tasas } from '../utils/montos';
 import { formatBs } from '../utils/exchangeRate';
 
 interface Props {
-  bcvRate: number;
+  tasas: Tasas;
   onSelectPackage: (pkg: PackageType) => void;
   // Sin asientos numerados: comprar una cantidad de entradas
   onBuyQuantity: (cantidad: number) => void;
@@ -113,18 +114,20 @@ function useTear(compraAbierta: boolean) {
   return { stubRef, bodyRef, tear };
 }
 
-export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onBuyQuantity, onOpenLookup, disponibles, compraAbierta }) => {
+export const HeroAndPackages: React.FC<Props> = ({ tasas, onSelectPackage, onBuyQuantity, onOpenLookup, disponibles, compraAbierta }) => {
   const { stubRef, bodyRef, tear } = useTear(compraAbierta);
   const [cantidad, setCantidad] = useState(1);
   const maximo = Math.max(0, Math.min(MAX_POR_COMPRA, disponibles));
   const cant = Math.max(1, Math.min(cantidad, maximo || 1));
   const { done, parts } = useCountdown(new Date(EVENTO.fechaISO).getTime());
   const precio = ENTRADAS.General.precio;
+  const unitario = calcularMontos([{ pkg: 'General' }], tasas);
+  const total = calcularMontos(Array.from({ length: cant }, () => ({ pkg: 'General' as const })), tasas);
   const general = ENTRADAS.General;
 
 
   const pasos = [
-    [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El total aparece en dólares y en bolívares a la tasa BCV del día.'],
+    [ASIENTOS_NUMERADOS ? 'Elige tus asientos' : 'Elige tus entradas', 'El precio está en euros. Los bolívares se calculan con la tasa BCV del euro del día, y el dólar aparece como referencia.'],
     ['Paga y reporta', `Paga por ${nombresMetodos} y envía la referencia por WhatsApp desde la misma página.`],
     ['Recibe tu QR', 'Al verificar el pago, tu entrada con código QR queda lista en «Mi boleto».'],
   ];
@@ -226,7 +229,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               href="#entradas"
               className="inline-flex items-center justify-center gap-2 min-h-[56px] px-9 rounded-full bg-marca hover:bg-marca-oscuro text-white font-semibold text-base sm:text-lg"
             >
-              Comprar entradas · ${precio}
+              Comprar entradas · €{precio}
               <ArrowRight className="w-5 h-5" />
             </a>
             <button
@@ -272,8 +275,8 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                 </div>
               </div>
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="font-display font-bold text-6xl sm:text-7xl leading-none text-oscuro">${precio}</span>
-                <span className="text-base sm:text-lg font-medium text-cafe">≈ Bs. {formatBs(precio * bcvRate)}</span>
+                <span className="font-display font-bold text-6xl sm:text-7xl leading-none text-oscuro">€{precio}</span>
+                <span className="text-base sm:text-lg font-medium text-cafe">≈ Bs. {formatBs(unitario.bs)}{unitario.usd > 0 && ` · $${unitario.usd.toFixed(2)}`}</span>
               </p>
               <ul className="flex flex-col gap-2.5">
                 {general.beneficios.map((b) => (
@@ -334,8 +337,8 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
                   <div className="flex items-baseline justify-between pt-3 sm:pt-4 border-t border-[#ECE7DD]">
                     <span className="text-sm tracking-[0.16em] uppercase text-cafe">Total</span>
                     <span className="text-right">
-                      <span className="block font-display font-bold text-3xl sm:text-4xl text-oscuro tabular-nums">${precio * cant}</span>
-                      <span className="block text-sm font-medium text-cafe">Bs. {formatBs(precio * cant * bcvRate)}</span>
+                      <span className="block font-display font-bold text-3xl sm:text-4xl text-oscuro tabular-nums">€{total.eur}</span>
+                      <span className="block text-sm font-medium text-cafe">Bs. {formatBs(total.bs)}{total.usd > 0 && ` · $${total.usd.toFixed(2)}`}</span>
                     </span>
                   </div>
                   <button
@@ -352,7 +355,7 @@ export const HeroAndPackages: React.FC<Props> = ({ bcvRate, onSelectPackage, onB
               <div aria-hidden="true" className="hidden md:block mt-1 h-10 rounded-sm opacity-80 [background:repeating-linear-gradient(90deg,#0b100d_0_2px,transparent_2px_4px,#0b100d_4px_5px,transparent_5px_9px,#0b100d_9px_12px,transparent_12px_14px)]" />
             </div>
           </div>
-          <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en bolívares según la tasa BCV del día ({formatBs(bcvRate)} Bs/$).</p>
+          <p className="-mt-4 text-center text-xs sm:text-sm text-tenue">Precio en euros. Tasa BCV del día: {formatBs(tasas.eur)} Bs/€{tasas.usd > 0 && ` · ${formatBs(tasas.usd)} Bs/$`}.</p>
 
           {/* Cómo comprar: pasos junto a la compra */}
           <div className="w-full pt-6 sm:pt-8 border-t border-oro/15 flex flex-col gap-6">

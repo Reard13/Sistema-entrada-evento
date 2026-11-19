@@ -157,6 +157,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return {
       pending: reservations.filter((r) => r.approvalStatus === 'pending_approval').length,
       sold: seats.length,
+      eur: approved.reduce((n, r) => n + (r.totalEur ?? 0), 0),
       usd: approved.reduce((n, r) => n + r.totalUsd, 0),
       bs: approved.reduce((n, r) => n + r.totalBs, 0),
       entered: Object.keys(checkIns).length,
@@ -256,7 +257,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               [
                 ['Entradas vendidas', String(stats.sold), 'aprobadas'],
                 ['Por revisar', String(stats.pending), stats.pending === 1 ? 'pago' : 'pagos'],
-                ['Recaudado', `$${stats.usd.toFixed(2)}`, `Bs. ${formatBs(stats.bs)}`],
+                ['Recaudado', `€${stats.eur}`, `Bs. ${formatBs(stats.bs)} · $${stats.usd.toFixed(2)}`],
                 ['Ingresaron', String(stats.entered), `de ${stats.sold}`],
               ] as [string, string, string][]
             ).map(([label, value, sub]) => (
@@ -329,9 +330,12 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     <p>
                       <span className="block text-xs text-gray-500">Monto</span>
                       <span className="font-semibold tabular-nums">
-                        Bs. {formatBs(r.totalBs)} · ${r.totalUsd.toFixed(2)}
+                        {r.totalEur !== undefined && `€${r.totalEur} · `}Bs. {formatBs(r.totalBs)} · ${r.totalUsd.toFixed(2)}
                       </span>
-                      <span className="block text-gray-600">Tasa {formatBs(r.bcvRate)}</span>
+                      <span className="block text-gray-600">
+                        Tasa €{formatBs(r.bcvRate)}
+                        {r.usdRate ? ` · Tasa $${formatBs(r.usdRate)}` : ''}
+                      </span>
                     </p>
                   </div>
                   {r.approvalStatus === 'rejected' && r.rejectionReason && <p className="mt-2 text-sm text-red-700">Motivo: {r.rejectionReason}</p>}

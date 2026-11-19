@@ -31,7 +31,10 @@ export interface ReservationData {
   approvalStatus: ReservationStatus;
   approvedAt?: number;
   rejectionReason?: string;
+  // bcvRate = bolívares por € usados para cobrar; usdRate = bolívares por $ (referencia)
   bcvRate: number;
+  usdRate?: number;
+  totalEur?: number; // compras nuevas; las anteriores solo tienen totalUsd
   totalUsd: number;
   totalBs: number;
   termsAcceptedAt?: number;

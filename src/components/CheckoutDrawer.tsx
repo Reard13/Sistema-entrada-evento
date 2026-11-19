@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { X, Copy, Check, MessageCircle } from 'lucide-react';
 import { SelectedSeat, ReservationData } from '../types';
 import { ASIENTOS_NUMERADOS, EVENTO, METODOS_PAGO, WHATSAPP, TERMINOS_VERSION } from '../config';
-import { BANCOS_VENEZUELA, etiquetaEntrada, precioEntrada, totalEntradasUsd } from '../constants';
+import { BANCOS_VENEZUELA, etiquetaEntrada, precioEntrada } from '../constants';
+import { calcularMontos, Tasas } from '../utils/montos';
 import { formatBs } from '../utils/exchangeRate';
 import { submitReservation } from '../utils/api';
 import { TermsModal } from './TermsModal';
@@ -17,7 +18,7 @@ interface CheckoutDrawerProps {
   onSeatsTaken: (seatIds: string[]) => void;
   secondsLeft: number;
   totalSeconds: number;
-  bcvRate: number;
+  tasas: Tasas;
 }
 
 export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
@@ -28,7 +29,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   onSeatsTaken,
   secondsLeft,
   totalSeconds,
-  bcvRate,
+  tasas,
 }) => {
   const metodos = METODOS_PAGO.filter((m) => m.activo);
   const [metodoId, setMetodoId] = useState(metodos[0]?.id ?? 'pagomovil');
@@ -47,8 +48,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [copiedType, setCopiedType] = useState<string | null>(null);
 
-  const totalUsd = totalEntradasUsd(selectedSeats);
-  const totalBs = Math.round(totalUsd * bcvRate * 100) / 100;
+  const montos = calcularMontos(selectedSeats, tasas);
 
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard?.writeText(text).catch(() => undefined);
@@ -90,7 +90,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       seats: selectedSeats,
       buyer: { fullName: buyer.fullName.trim(), phone: buyer.phone.trim() },
       paymentReport: { method: metodo.id, referenceNumber: reference, bank, payerPhone: effectivePayerPhone },
-      bcvRate,
+      bcvRate: tasas.eur,
+      usdRate: tasas.usd,
       termsAccepted: true,
       termsVersion: TERMINOS_VERSION,
     });
@@ -113,8 +114,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       `${ASIENTOS_NUMERADOS ? (r.seats.length === 1 ? 'Asiento' : `Asientos (${r.seats.length})`) : r.seats.length === 1 ? 'Entrada' : `Entradas (${r.seats.length})`}: ${seatsLine}\n\n` +
       `${metodo.nombre} · Ref. *${reference}*${bank ? ` · ${bank}` : ''}${payerLine}\n` +
       (enBs
-        ? `Monto: *Bs. ${formatBs(r.totalBs)}* ($${r.totalUsd.toFixed(2)}) · Tasa ${formatBs(r.bcvRate)}\n\n`
-        : `Monto: *$${r.totalUsd.toFixed(2)}*\n\n`) +
+        ? `Monto: *Bs. ${formatBs(r.totalBs)}* (€${r.totalEur ?? ''} · $${r.totalUsd.toFixed(2)}) · Tasa €${formatBs(r.bcvRate)}\n\n`
+        : `Monto: *$${r.totalUsd.toFixed(2)}* (€${r.totalEur ?? ''})\n\n`) +
       `Por favor verifiquen el pago para liberar mi QR. ¡Gracias!`;
     const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMsg)}`;
 
@@ -201,15 +202,18 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                   </div>
                 ) : (
                   <span className="block text-xs font-semibold text-gray-500 mt-1">
-                    {selectedSeats.length} × Entrada {selectedSeats[0]?.pkg} (${precioEntrada(selectedSeats[0]?.pkg)})
+                    {selectedSeats.length} × Entrada {selectedSeats[0]?.pkg} (€{precioEntrada(selectedSeats[0]?.pkg)})
                   </span>
                 )}
               </div>
               <div className="text-right shrink-0">
                 <span className="block text-2xl font-bold text-marca-oscuro leading-none tabular-nums">
-                  {enBs ? `Bs. ${formatBs(totalBs)}` : `$${totalUsd.toFixed(2)}`}
+                  {enBs ? `Bs. ${formatBs(montos.bs)}` : `$${montos.usd.toFixed(2)}`}
                 </span>
-                {enBs && <span className="block text-xs font-bold text-gray-500 mt-1">${totalUsd.toFixed(2)} USD</span>}
+                <span className="block text-xs font-bold text-gray-500 mt-1">
+                  €{montos.eur}
+                  {enBs && montos.usd > 0 && ` · $${montos.usd.toFixed(2)}`}
+                </span>
               </div>
             </div>
           </section>

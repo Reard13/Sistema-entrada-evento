@@ -11,7 +11,7 @@ import { PackageType, SelectedSeat, ReservationData } from './types';
 import { ASIENTOS_NUMERADOS, CAPACIDAD, MINUTOS_RESERVA } from './config';
 import { entradasLibres } from './constants';
 import { connectRealtime, fetchBlockedSeats, forgetTicket, lookupReservations, rememberedTicket, rememberTicket, RESERVAS_EVENT } from './utils/api';
-import { fetchLatestBcvRate, getInitialBcvRate } from './utils/exchangeRate';
+import { fetchLatestTasas, getInitialTasas } from './utils/exchangeRate';
 import { readSession } from './utils/adminSession';
 
 // El panel (con el escáner) solo se descarga cuando alguien lo abre: los compradores no lo necesitan
@@ -34,7 +34,7 @@ export default function App() {
     }
   });
   const [ticket, setTicket] = useState<ReservationData | null>(null);
-  const [bcvRate, setBcvRate] = useState(getInitialBcvRate);
+  const [tasas, setTasas] = useState(getInitialTasas);
   const [blockedSeatIds, setBlockedSeatIds] = useState<string[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
 
@@ -48,9 +48,9 @@ export default function App() {
     setPanelOpen(open);
   };
 
-  // Tasa BCV del día
+  // Tasas BCV del día (euro y dólar)
   useEffect(() => {
-    fetchLatestBcvRate().then((r) => r && setBcvRate(r));
+    fetchLatestTasas().then((r) => r && setTasas(r));
   }, []);
 
   // Entrada abierta desde el enlace (?boleto=...) o recordada al volver de WhatsApp
@@ -163,7 +163,7 @@ export default function App() {
 
       <main className="flex-1">
         {view === 'home' ? (
-          <HeroAndPackages bcvRate={bcvRate} onSelectPackage={goToMap} onBuyQuantity={buyQuantity} onOpenLookup={() => setLookupOpen(true)} compraAbierta={drawerOpen} disponibles={CAPACIDAD - blockedSeatIds.length} />
+          <HeroAndPackages tasas={tasas} onSelectPackage={goToMap} onBuyQuantity={buyQuantity} onOpenLookup={() => setLookupOpen(true)} compraAbierta={drawerOpen} disponibles={CAPACIDAD - blockedSeatIds.length} />
         ) : (
           <SeatMap
             selectedSeats={selectedSeats}
@@ -173,7 +173,7 @@ export default function App() {
             onProceedToCheckout={() => setDrawerOpen(true)}
             onBackToHome={goHome}
             blockedSeatIds={blockedSeatIds}
-            bcvRate={bcvRate}
+            tasas={tasas}
           />
         )}
       </main>
@@ -189,7 +189,7 @@ export default function App() {
         onSeatsTaken={(ids) => setBlockedSeatIds((prev) => Array.from(new Set([...prev, ...ids])))}
         secondsLeft={secondsLeft}
         totalSeconds={TOTAL_SECONDS}
-        bcvRate={bcvRate}
+        tasas={tasas}
       />
 
       <DigitalTicketModal reservation={ticket} onClose={closeTicket} onUpdate={setTicket} />

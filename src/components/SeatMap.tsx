@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronLeft, ArrowRight } from 'lucide-react';
 import { PackageType, SelectedSeat } from '../types';
 import { MAPA } from '../config';
-import { totalEntradasUsd } from '../constants';
+import { calcularMontos, Tasas } from '../utils/montos';
 import { formatBs } from '../utils/exchangeRate';
 
 interface SeatMapProps {
@@ -13,7 +13,7 @@ interface SeatMapProps {
   onProceedToCheckout: () => void;
   onBackToHome: () => void;
   blockedSeatIds: string[];
-  bcvRate: number;
+  tasas: Tasas;
 }
 
 type SeatState = 'available' | 'selected' | 'blocked';
@@ -47,11 +47,11 @@ export const SeatMap: React.FC<SeatMapProps> = ({
   onProceedToCheckout,
   onBackToHome,
   blockedSeatIds,
-  bcvRate,
+  tasas,
 }) => {
   const selected = React.useMemo(() => new Set(selectedSeats.map((s) => s.id)), [selectedSeats]);
   const blocked = React.useMemo(() => new Set(blockedSeatIds), [blockedSeatIds]);
-  const totalUsd = totalEntradasUsd(selectedSeats);
+  const montos = calcularMontos(selectedSeats, tasas);
 
   return (
     <div className="pb-36 bg-suave min-h-screen">
@@ -137,9 +137,9 @@ export const SeatMap: React.FC<SeatMapProps> = ({
           <div className="min-w-0">
             <p className="text-lg font-bold leading-tight">
               {selectedSeats.length} {selectedSeats.length === 1 ? 'asiento' : 'asientos'}
-              {selectedSeats.length > 0 && <span className="ml-2 tabular-nums">${totalUsd}</span>}
+              {selectedSeats.length > 0 && <span className="ml-2 tabular-nums">€{montos.eur}</span>}
             </p>
-            {selectedSeats.length > 0 && <p className="text-sm font-semibold text-white/80 tabular-nums whitespace-nowrap">Bs. {formatBs(totalUsd * bcvRate)}</p>}
+            {selectedSeats.length > 0 && <p className="text-sm font-semibold text-white/80 tabular-nums whitespace-nowrap">Bs. {formatBs(montos.bs)}{montos.usd > 0 && ` · $${montos.usd.toFixed(2)}`}</p>}
             {selectedSeats.length > 0 && <p className="text-xs text-white/70 truncate">{selectedSeats.map((s) => `${s.id} (${s.pkg})`).join(', ')}</p>}
           </div>
           <button

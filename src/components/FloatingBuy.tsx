@@ -45,7 +45,7 @@ export const FloatingBuy: React.FC<{ hidden: boolean }> = ({ hidden }) => {
         tabIndex={show ? 0 : -1}
         className={`${show ? 'pointer-events-auto' : ''} inline-flex items-center justify-center gap-2 min-h-[52px] px-7 rounded-full bg-marca hover:bg-marca-oscuro active:scale-[0.97] text-white font-semibold text-base shadow-[0_8px_24px_rgba(0,0,0,0.45),0_2px_6px_rgba(0,0,0,0.3)] ring-1 ring-white/15 transition-transform duration-100`}
       >
-        Comprar entradas · ${ENTRADAS.General.precio}
+        Comprar entradas · €{ENTRADAS.General.precio}
         <ArrowRight className="w-5 h-5" />
       </a>
     </div>

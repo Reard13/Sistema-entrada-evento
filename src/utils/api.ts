@@ -40,7 +40,8 @@ export async function submitReservation(input: {
   seats: SelectedSeat[];
   buyer: { fullName: string; phone: string };
   paymentReport: { method: string; referenceNumber: string; bank: string; payerPhone: string };
-  bcvRate: number;
+  bcvRate: number; // bolívares por €
+  usdRate: number; // bolívares por $ (referencia)
   termsAccepted: boolean;
   termsVersion: string;
 }): Promise<SubmitResult> {

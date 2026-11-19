@@ -14,7 +14,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { ASIENTOS_NUMERADOS, ENTRADAS, MAX_POR_COMPRA, METODOS_PAGO, PREFIJO_LOCALIZADOR, TASA_BCV_RESPALDO } from './src/config';
+import { ASIENTOS_NUMERADOS, ENTRADAS, MAX_POR_COMPRA, METODOS_PAGO, PREFIJO_LOCALIZADOR } from './src/config';
+import { calcularMontos, Tasas } from './src/utils/montos';
 import { ASIENTOS_VALIDOS, entradasLibres } from './src/constants';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -146,28 +147,33 @@ const clip = (v: unknown, n: number) => String(v ?? '').trim().slice(0, n);
 const qrSig = (loc: string, seatId: string) =>
   crypto.createHmac('sha256', QR_SECRET).update(`${normLoc(loc)}|${seatId}`).digest('base64url').slice(0, 12);
 
-// Tasa BCV en memoria (30 minutos)
-let bcvCache: { rate: number; at: number } | null = null;
-async function getBcvRate(): Promise<number | null> {
-  if (bcvCache && Date.now() - bcvCache.at < 30 * 60 * 1000) return bcvCache.rate;
-  const sources: [string, (d: any) => unknown][] = [
-    ['https://ve.dolarapi.com/v1/dolares/oficial', (d) => d?.promedio],
-    ['https://pydolarve.org/api/v1/dollar?page=bcv', (d) => d?.monitors?.usd?.price],
-  ];
-  for (const [url, pick] of sources) {
-    try {
-      const r = await fetch(url, { signal: AbortSignal.timeout(5000), headers: { Accept: 'application/json' } });
-      if (!r.ok) continue;
-      const rate = Number(pick(await r.json()));
-      if (rate > 0) {
-        bcvCache = { rate: Number(rate.toFixed(2)), at: Date.now() };
-        return bcvCache.rate;
-      }
-    } catch {
-      /* siguiente fuente */
-    }
+// Tasas BCV en memoria (30 minutos): bolívares por € (cobro) y por $ (referencia)
+let tasasCache: (Tasas & { at: number }) | null = null;
+async function fuenteTasa(url: string, pick: (d: any) => unknown): Promise<number> {
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(5000), headers: { Accept: 'application/json' } });
+    if (!r.ok) return 0;
+    const v = Number(pick(await r.json()));
+    return v > 0 ? Number(v.toFixed(2)) : 0;
+  } catch {
+    return 0; // siguiente fuente
   }
-  return bcvCache?.rate ?? null;
+}
+async function getTasas(): Promise<Tasas | null> {
+  if (tasasCache && Date.now() - tasasCache.at < 30 * 60 * 1000) return { eur: tasasCache.eur, usd: tasasCache.usd };
+  const usd =
+    (await fuenteTasa('https://ve.dolarapi.com/v1/dolares/oficial', (d) => d?.promedio)) ||
+    (await fuenteTasa('https://pydolarve.org/api/v1/dollar?page=bcv', (d) => d?.monitors?.usd?.price)) ||
+    tasasCache?.usd ||
+    0;
+  const eur =
+    (await fuenteTasa('https://ve.dolarapi.com/v1/euros/oficial', (d) => d?.promedio)) ||
+    (await fuenteTasa('https://pydolarve.org/api/v1/dollar?page=bcv', (d) => d?.monitors?.eur?.price)) ||
+    tasasCache?.eur ||
+    0;
+  if (!usd || !eur) return null;
+  tasasCache = { eur, usd, at: Date.now() };
+  return { eur, usd };
 }
 
 type Reserva = {
@@ -179,7 +185,9 @@ type Reserva = {
   approvalStatus: 'pending_approval' | 'approved' | 'rejected';
   approvedAt?: number;
   rejectionReason?: string;
-  bcvRate: number;
+  bcvRate: number; // bolívares por €
+  usdRate?: number; // bolívares por $ (referencia)
+  totalEur?: number;
   totalUsd: number;
   totalBs: number;
   termsAcceptedAt?: number;
@@ -269,9 +277,10 @@ async function startServer() {
   // ---------- Público ----------
   app.get('/api/seats/blocked', (_req, res) => res.json({ success: true, seats: Array.from(takenSeats()) }));
 
+  // rate = bolívares por € (cobro); usdRate = bolívares por $ (referencia)
   app.get('/api/bcv-rate', async (_req, res) => {
-    const rate = await getBcvRate();
-    return rate ? res.json({ success: true, rate }) : res.status(502).json({ success: false, rate: TASA_BCV_RESPALDO });
+    const t = await getTasas();
+    return t ? res.json({ success: true, rate: t.eur, usdRate: t.usd }) : res.status(502).json({ success: false, message: 'Sin tasa disponible.' });
   });
 
   // Nueva compra: el servidor calcula el precio, genera el localizador y verifica que los asientos sigan libres
@@ -327,11 +336,16 @@ async function startServer() {
       });
     }
 
-    // Tasa: la del servidor; si no hay conexión con el BCV, la que vio el comprador (dentro de un margen)
-    const clientRate = Number(b.bcvRate) || 0;
-    const serverRate = await getBcvRate();
-    const bcvRate = serverRate && (!clientRate || Math.abs(clientRate - serverRate) / serverRate > 0.05) ? serverRate : clientRate || TASA_BCV_RESPALDO;
-    const totalUsd = seats.reduce((n, s) => n + ENTRADAS[s.pkg].precio, 0);
+    // Tasa del euro: la del servidor; si no hay conexión, la que vio el comprador (dentro de un margen)
+    const clientEur = Number(b.bcvRate) || 0;
+    const clientUsd = Number(b.usdRate) || 0;
+    const serverTasas = await getTasas();
+    if (!serverTasas && !clientEur) {
+      return res.status(503).json({ success: false, message: 'No pudimos consultar la tasa del euro. Intenta de nuevo en unos minutos.' });
+    }
+    const eurRate = serverTasas && (!clientEur || Math.abs(clientEur - serverTasas.eur) / serverTasas.eur > 0.05) ? serverTasas.eur : clientEur;
+    const usdRate = serverTasas?.usd || clientUsd;
+    const montos = calcularMontos(seats, { eur: eurRate, usd: usdRate });
 
     let locatorCode = newLocator();
     while (findReserva(locatorCode)) locatorCode = newLocator();
@@ -349,9 +363,11 @@ async function startServer() {
         reportedAt: now,
       },
       approvalStatus: 'pending_approval',
-      bcvRate,
-      totalUsd,
-      totalBs: Math.round(totalUsd * bcvRate * 100) / 100,
+      bcvRate: eurRate,
+      usdRate,
+      totalEur: montos.eur,
+      totalUsd: montos.usd,
+      totalBs: montos.bs,
       termsAcceptedAt: b.termsAccepted ? now : undefined,
       termsVersion: clip(b.termsVersion, 20) || undefined,
     };
