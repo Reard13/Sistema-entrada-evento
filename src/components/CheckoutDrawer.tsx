@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, MessageCircle, ChevronDown } from 'lucide-react';
+import { X, Copy, Check, MessageCircle } from 'lucide-react';
 import { SelectedSeat, ReservationData } from '../types';
 import { ASIENTOS_NUMERADOS, EVENTO, METODOS_PAGO, WHATSAPP, TERMINOS_VERSION } from '../config';
-import { BANCOS_VENEZUELA, etiquetaEntrada, palabraEntrada, precioEntrada, totalEntradasUsd } from '../constants';
+import { BANCOS_VENEZUELA, etiquetaEntrada, precioEntrada, totalEntradasUsd } from '../constants';
 import { formatBs } from '../utils/exchangeRate';
 import { submitReservation } from '../utils/api';
 import { TermsModal } from './TermsModal';
@@ -39,7 +39,6 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const [paymentBank, setPaymentBank] = useState(BANCOS_VENEZUELA[0]);
   const [paymentCustomBank, setPaymentCustomBank] = useState('');
   const [payerPhone, setPayerPhone] = useState('');
-  const [showPayerPhone, setShowPayerPhone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   // Términos y condiciones: obligatorio aceptarlos para enviar el reporte
@@ -138,7 +137,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
 
   const labelClass = 'block text-xs font-bold text-marca-oscuro mb-1.5';
 
-  // Fila de dato de Pago Móvil con botón de copiar individual
+  // Fila de dato de pago con botón de copiar individual
   const CopyRow = ({ label, value, copyValue, id }: { label: string; value: string; copyValue?: string; id: string }) => (
     <div className="flex items-center justify-between gap-3 py-2">
       <div className="min-w-0">
@@ -169,16 +168,9 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       {/* Drawer Panel: pantalla completa en móvil, panel lateral desde tablet */}
       <div className="relative w-full sm:max-w-md bg-white text-marca-oscuro h-[100dvh] shadow-2xl flex flex-col z-10 overflow-hidden animate-slideLeft sm:border-l border-gray-300">
 
-        {/* Header Compacto */}
+        {/* Cabecera: solo el título */}
         <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-3 border-b border-gray-200 shrink-0">
-          <div className="min-w-0">
-            <h2 className="text-lg font-bold text-marca-oscuro leading-tight">
-              Finalizar compra
-            </h2>
-            <p className="text-xs text-gray-500 font-semibold mt-0.5">
-              {selectedSeats.length} {palabraEntrada(selectedSeats.length)} · {EVENTO.lugar} · {EVENTO.fechaCorta}
-            </p>
-          </div>
+          <h2 className="text-lg font-bold text-marca-oscuro leading-tight">Finalizar compra</h2>
           <button
             onClick={onClose}
             className="shrink-0 w-10 h-10 rounded-full bg-suave text-marca-oscuro hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
@@ -194,41 +186,30 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
           {/* Banner Temporizador */}
           {ASIENTOS_NUMERADOS && <HoldingTimerBanner secondsLeft={secondsLeft} totalSeconds={totalSeconds} />}
 
-          {/* Tu pedido: asientos, aporte opcional y total */}
-          <section className="rounded-2xl border border-gray-200 p-4 space-y-3">
-            <div className="flex flex-wrap gap-1.5">
-              {!ASIENTOS_NUMERADOS && selectedSeats.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-suave border border-gray-200 pl-1 pr-2.5 py-1 text-xs font-bold text-oscuro">
-                  <span className="rounded-full bg-marca text-white px-2 py-0.5 text-[11px] font-bold">{selectedSeats.length} ×</span>
-                  Entrada {selectedSeats[0].pkg} · ${precioEntrada(selectedSeats[0].pkg)}
-                </span>
-              )}
-              {ASIENTOS_NUMERADOS && selectedSeats.map((seat) => (
-                <span
-                  key={seat.id}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-suave border border-gray-200 pl-1 pr-2.5 py-1 text-xs font-bold text-oscuro"
-                >
-                  <span className="rounded-full bg-marca text-white px-2 py-0.5 text-[11px] font-bold">{seat.id}</span>
-                  {seat.pkg} · ${precioEntrada(seat.pkg)}
-                </span>
-              ))}
-            </div>
-
-            {/* Total */}
-            <div className="flex items-end justify-between gap-3 pt-3 border-t border-dashed border-gray-300">
-              <div>
+          {/* Total: un solo bloque con el monto y el detalle de las entradas */}
+          <section className="rounded-2xl border border-gray-200 p-4">
+            <div className="flex items-end justify-between gap-3">
+              <div className="min-w-0">
                 <span className="block text-xs font-bold uppercase tracking-wider text-gray-500">Total a pagar</span>
-                {enBs && (
-                  <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 mt-0.5">
-                    Tasa BCV {formatBs(bcvRate)} Bs/$
+                {ASIENTOS_NUMERADOS ? (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {selectedSeats.map((seat) => (
+                      <span key={seat.id} className="inline-flex items-center rounded-full bg-suave border border-gray-200 px-2.5 py-0.5 text-xs font-bold text-oscuro">
+                        {seat.id}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="block text-xs font-semibold text-gray-500 mt-1">
+                    {selectedSeats.length} × Entrada {selectedSeats[0]?.pkg} (${precioEntrada(selectedSeats[0]?.pkg)})
                   </span>
                 )}
               </div>
-              <div className="text-right">
+              <div className="text-right shrink-0">
                 <span className="block text-2xl font-bold text-marca-oscuro leading-none tabular-nums">
                   {enBs ? `Bs. ${formatBs(totalBs)}` : `$${totalUsd.toFixed(2)}`}
                 </span>
-                <span className="text-xs font-bold text-gray-500">{enBs ? `$${totalUsd.toFixed(2)} USD` : 'en dólares'}</span>
+                {enBs && <span className="block text-xs font-bold text-gray-500 mt-1">${totalUsd.toFixed(2)} USD</span>}
               </div>
             </div>
           </section>
@@ -252,14 +233,11 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                       setPaymentReference('');
                       setFormErrors({});
                     }}
-                    className={`min-h-[52px] px-2 rounded-xl border text-[13px] font-bold leading-tight cursor-pointer transition-colors ${
+                    className={`min-h-[44px] px-2 rounded-xl border text-[13px] font-bold leading-tight cursor-pointer transition-colors ${
                       m.id === metodo.id ? 'bg-marca border-marca text-white' : 'bg-white border-gray-300 text-oscuro hover:border-marca'
                     }`}
                   >
                     {m.nombre}
-                    <span className={`block text-[11px] font-semibold ${m.id === metodo.id ? 'text-white/80' : 'text-gray-500'}`}>
-                      {m.moneda === 'USD' ? 'en dólares' : 'en bolívares'}
-                    </span>
                   </button>
                 ))}
               </div>
@@ -268,12 +246,6 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               {metodo.datos.map((d) => (
                 <CopyRow key={d.label} id={`${metodo.id}-${d.label}`} label={d.label} value={d.valor} copyValue={d.copiar} />
               ))}
-              <CopyRow
-                id={`${metodo.id}-monto`}
-                label="Monto"
-                value={enBs ? `Bs. ${formatBs(totalBs)}` : `$${totalUsd.toFixed(2)}`}
-                copyValue={enBs ? formatBs(totalBs) : totalUsd.toFixed(2)}
-              />
             </div>
           </section>
 
@@ -342,67 +314,56 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               </div>
 
               {metodo.pideBanco && (
-              <div>
-                <label htmlFor="ck-bank" className={labelClass}>Banco desde el que pagaste</label>
-                <select
-                  id="ck-bank"
-                  value={paymentBank}
-                  onChange={(e) => setPaymentBank(e.target.value)}
-                  className={inputClass()}
-                >
-                  {BANCOS_VENEZUELA.map((banco) => (
-                    <option key={banco} value={banco} className="text-gray-800">
-                      {banco}
-                    </option>
-                  ))}
-                </select>
-                {paymentBank === 'Otro Banco' && (
-                  <input
-                    type="text"
-                    placeholder="Nombre del banco"
-                    value={paymentCustomBank}
-                    onChange={(e) => {
-                      setPaymentCustomBank(e.target.value);
-                      if (formErrors.paymentCustomBank) setFormErrors({ ...formErrors, paymentCustomBank: '' });
-                    }}
-                    className={`${inputClass(!!formErrors.paymentCustomBank)} mt-2`}
-                  />
-                )}
-                {formErrors.paymentCustomBank && (
-                  <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.paymentCustomBank}</p>
-                )}
-              </div>
+                <div>
+                  <label htmlFor="ck-bank" className={labelClass}>Banco desde el que pagaste</label>
+                  <select
+                    id="ck-bank"
+                    value={paymentBank}
+                    onChange={(e) => setPaymentBank(e.target.value)}
+                    className={inputClass()}
+                  >
+                    {BANCOS_VENEZUELA.map((banco) => (
+                      <option key={banco} value={banco} className="text-gray-800">
+                        {banco}
+                      </option>
+                    ))}
+                  </select>
+                  {paymentBank === 'Otro Banco' && (
+                    <input
+                      type="text"
+                      placeholder="Nombre del banco"
+                      value={paymentCustomBank}
+                      onChange={(e) => {
+                        setPaymentCustomBank(e.target.value);
+                        if (formErrors.paymentCustomBank) setFormErrors({ ...formErrors, paymentCustomBank: '' });
+                      }}
+                      className={`${inputClass(!!formErrors.paymentCustomBank)} mt-2`}
+                    />
+                  )}
+                  {formErrors.paymentCustomBank && (
+                    <p className="text-xs text-red-500 mt-1 font-semibold">{formErrors.paymentCustomBank}</p>
+                  )}
+                </div>
               )}
             </div>
 
-            {/* Teléfono del pagador solo si es distinto al del titular (pagos en bolívares) */}
-            {!metodo.pideBanco ? null : showPayerPhone ? (
-              <div>
-                <label htmlFor="ck-payer" className={labelClass}>Teléfono desde el que se pagó</label>
-                <input
-                  id="ck-payer"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="0414-7654321"
-                  value={payerPhone}
-                  onChange={(e) => setPayerPhone(e.target.value)}
-                  className={inputClass()}
-                />
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowPayerPhone(true)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-marca-oscuro hover:text-marca underline underline-offset-4 cursor-pointer"
-              >
-                ¿Pagaste desde otro número?
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
+            {/* Teléfono del pagador: opcional, solo si pagó desde otro número */}
+            {metodo.pideBanco && (
+              <input
+                id="ck-payer"
+                type="tel"
+                inputMode="tel"
+                aria-label="Teléfono desde el que pagaste (opcional, si es otro número)"
+                placeholder="¿Pagaste desde otro número? Escríbelo (opcional)"
+                value={payerPhone}
+                onChange={(e) => setPayerPhone(e.target.value)}
+                className={inputClass()}
+              />
             )}
           </section>
         </div>
 
-        {/* Footer con Botón Principal */}
+        {/* Pie: términos y botón principal */}
         <div className="px-4 sm:px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white border-t border-gray-200 shrink-0">
           <label className="mb-2.5 flex items-start gap-2.5 text-xs font-semibold text-oscuro cursor-pointer select-none">
             <input
@@ -437,9 +398,6 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
             <MessageCircle className="w-4 h-4" />
             <span>{isSubmitting ? 'Enviando…' : 'Enviar reporte por WhatsApp'}</span>
           </button>
-          <p className="text-xs text-center text-gray-500 font-medium mt-2">
-            Verificaremos tu pago y te enviaremos tu QR de acceso.
-          </p>
         </div>
       </div>
     </div>
