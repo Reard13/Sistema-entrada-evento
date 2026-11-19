@@ -75,10 +75,14 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
       const tick = () => {
         if (!streamRef.current) return;
         if (video.readyState >= 2 && video.videoWidth > 0) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.drawImage(video, 0, 0);
-          const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, { inversionAttempts: 'dontInvert' });
+          // Se lee exactamente el cuadro que se ve en pantalla (el centro de la imagen, como object-cover)
+          const lado = Math.min(video.videoWidth, video.videoHeight);
+          const sx = (video.videoWidth - lado) / 2;
+          const sy = (video.videoHeight - lado) / 2;
+          canvas.width = lado;
+          canvas.height = lado;
+          ctx.drawImage(video, sx, sy, lado, lado, 0, 0, lado, lado);
+          const code = jsQR(ctx.getImageData(0, 0, lado, lado).data, lado, lado, { inversionAttempts: 'dontInvert' });
           if (code?.data) return void send({ payload: code.data });
         }
         rafRef.current = requestAnimationFrame(tick);
@@ -202,7 +206,7 @@ export const DoorScanner: React.FC<{ isAdmin: boolean; entered: number; total: n
           <div className="relative aspect-square rounded-3xl overflow-hidden bg-black">
             <video ref={videoRef} muted playsInline className={`w-full h-full object-cover ${cameraOn ? '' : 'hidden'}`} />
             {cameraOn ? (
-              <div className="pointer-events-none absolute inset-[18%] rounded-2xl border-4 border-white/80" aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-0 rounded-3xl border-4 border-white/80" aria-hidden="true" />
             ) : (
               <button type="button" onClick={startCamera} className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white cursor-pointer">
                 <Camera className="w-12 h-12" />
