@@ -126,13 +126,22 @@ export async function drawTicket(r: ReservationData, seat: SelectedSeat): Promis
   if (marca && titulo.toLowerCase().startsWith(org.toLowerCase())) titulo = titulo.slice(org.length).trim();
   titulo = titulo.charAt(0).toUpperCase() + titulo.slice(1);
 
+  // Título igual que en la web: la misma imagen del nombre del evento
+  const tituloImg = EVENTO.logoTitulo ? await loadImage(EVENTO.logoTitulo).catch(() => null) : null;
   ctx.fillStyle = ORO;
   ctx.font = '600 24px "Jost", sans-serif';
-  spaced(ctx, 'ENTRADA GENERAL', tx, 168, 7);
-  ctx.fillStyle = '#FFFFFF';
-  fitText(ctx, titulo, right - tx, 700, 76, SERIF);
-  ctx.textAlign = 'left';
-  ctx.fillText(titulo, tx, 248);
+  if (tituloImg && tituloImg.width) {
+    spaced(ctx, 'ENTRADA GENERAL', tx, 112, 7);
+    const w = Math.min(right - tx, 760);
+    const h = (tituloImg.height / tituloImg.width) * w;
+    ctx.drawImage(tituloImg, tx, 130, w, h);
+  } else {
+    spaced(ctx, 'ENTRADA GENERAL', tx, 168, 7);
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, titulo, right - tx, 700, 76, SERIF);
+    ctx.textAlign = 'left';
+    ctx.fillText(titulo, tx, 248);
+  }
 
   const linea = (y: number) => {
     ctx.fillStyle = 'rgba(241,227,154,0.3)';
