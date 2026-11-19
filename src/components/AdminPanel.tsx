@@ -291,7 +291,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <Lock className="w-6 h-6" />
             </div>
             <h1 className="mt-4 text-xl font-extrabold text-oscuro">Acceso del personal</h1>
-            <p className="mt-1 text-sm text-gray-600">Escribe tu clave. La de administrador abre todo el panel; la de puerta, solo el escáner.</p>
+            <p className="mt-1 text-sm text-gray-600">Escribe la clave del evento para entrar al panel de pagos y al escáner.</p>
             <label htmlFor="pin" className="sr-only">
               Clave
             </label>
