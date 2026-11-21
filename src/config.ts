@@ -47,7 +47,7 @@ export const PREFIJO_LOCALIZADOR = 'SSF';
 export const QR_GRUPO = 'TODAS';
 
 // WhatsApp que recibe los reportes de pago (código de país sin «+», ej. 584141234567)
-export const WHATSAPP = '584145891276';
+export const WHATSAPP = '584241608801';
 export const INSTAGRAM = 'sanremosinfronteras'; // sin @. Vacío = no se muestra.
 // Los logos y el nombre del organizador llevan a este perfil
 export const INSTAGRAM_URL = INSTAGRAM ? `https://www.instagram.com/${INSTAGRAM}/` : '';
